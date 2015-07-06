@@ -48,6 +48,21 @@
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.uncommons.watchmaker</groupId>
+			<artifactId>watchmaker-framework</artifactId>
+			<version>0.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.uncommons.watchmaker</groupId>
+			<artifactId>watchmaker-swing</artifactId>
+			<version>0.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.encog</groupId>
+			<artifactId>encog-core</artifactId>
+			<version>3.3.0</version>
+		</dependency>
 
 	</dependencies>
 </project>
