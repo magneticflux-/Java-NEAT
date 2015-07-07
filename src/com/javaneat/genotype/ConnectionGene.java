@@ -1,6 +1,6 @@
 package com.javaneat.genotype;
 
-public class ConnectionGene
+public class ConnectionGene implements Comparable<ConnectionGene>
 {
 	private int		innovationID;
 	private int		fromNode;
@@ -15,6 +15,16 @@ public class ConnectionGene
 		this.innovationID = innovationID;
 		this.weight = weight;
 		this.enabled = enabled;
+	}
+
+	public int getInnovationID()
+	{
+		return this.innovationID;
+	}
+
+	public double getWeight()
+	{
+		return this.weight;
 	}
 
 	public ConnectionGene(ConnectionGene other)
@@ -32,9 +42,26 @@ public class ConnectionGene
 		return this.toNode;
 	}
 
+	public boolean equals(Object o)
+	{
+		if (o instanceof ConnectionGene)
+		{
+			return this.innovationID == ((ConnectionGene) o).innovationID;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	public String toString()
 	{
 		return "ConnectionGene=[FromNode:" + this.fromNode + ",ToNode:" + this.toNode + ",Weight:" + this.weight + ",Enabled:" + this.enabled
 				+ ",InnovationID:" + this.innovationID + "]";
+	}
+
+	public int compareTo(ConnectionGene o)
+	{
+		return this.innovationID - o.innovationID;
 	}
 }

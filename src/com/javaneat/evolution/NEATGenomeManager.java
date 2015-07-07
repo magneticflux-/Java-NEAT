@@ -7,37 +7,72 @@ import com.javaneat.genotype.NEATInnovation;
 
 public class NEATGenomeManager
 {
-	private Map<String, NEATInnovation>	innovations			= new HashMap<String, NEATInnovation>();
-	private int							globalInnovationID	= 0;
-	private int							globalNeuronID		= 0;
-	private int							numInputs;
-	private int							numOutputs;
+	public static String getLinkKey(final int fromNode, final int toNode)
+	{
+		return "link_" + fromNode + ":" + toNode;
+	}
 
-	public NEATGenomeManager(int numInputs, int numOutput)
+	public static String getNodeKey(final int nodeID)
+	{
+		return "node_" + nodeID;
+	}
+
+	public static String getSplitKey(final int fromNode, final int toNode)
+	{
+		return "split_" + fromNode + ":" + toNode;
+	}
+
+	private final double						disjointGeneCoefficient;
+	private final double						excessGeneCoefficient;
+	private int									globalInnovationID	= 0;
+	private int									globalNeuronID		= 0;
+	private final Map<String, NEATInnovation>	innovations			= new HashMap<String, NEATInnovation>();
+	private final int							numInputs;
+	private final int							numOutputs;
+	private double								speciesCutoff;
+	private final double						speciesCutoffDelta;
+	private final int							speciesTarget;
+	private final double						weightDifferenceCoefficient;
+
+	public NEATGenomeManager(final int numInputs, final int numOutputs, final double disjointGeneCoefficient, final double excessGeneCoefficient,
+			final double weightDifferenceCoefficient, final int speciesTarget, final double speciesCutoff, final double speciesCutoffDelta)
 	{
 		this.numInputs = numInputs;
-		this.numOutputs = numOutput;
+		this.numOutputs = numOutputs;
+		this.disjointGeneCoefficient = disjointGeneCoefficient;
+		this.excessGeneCoefficient = excessGeneCoefficient;
+		this.weightDifferenceCoefficient = weightDifferenceCoefficient;
+		this.speciesTarget = speciesTarget;
+		this.speciesCutoff = speciesCutoff;
+		this.speciesCutoffDelta = speciesCutoffDelta;
 
 		// Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
 		this.aquireNodeInnovation(this.getNewNeuronID()); // Bias
-		for (int i = 0; i < this.numInputs; i++) // Inputs
-		{
-			this.aquireNodeInnovation(this.getNewNeuronID());
-		}
-		for (int i = 0; i < this.numOutputs; i++) // Outputs
-		{
-			this.aquireNodeInnovation(this.getNewNeuronID());
-		}
+		for (int i = 0; i < this.numInputs; i++)
+			this.aquireNodeInnovation(this.getNewNeuronID()); // Inputs
+		for (int i = 0; i < this.numOutputs; i++)
+			this.aquireNodeInnovation(this.getNewNeuronID()); // Outputs
 	}
 
-	public int getInputOffset()
+	public NEATInnovation aquireLinkInnovation(final int fromNode, final int toNode) // For a link mutation
 	{
-		return 1;
+		final String key = NEATGenomeManager.getLinkKey(fromNode, toNode);
+		if (!this.innovations.containsKey(key)) this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), -1));
+		return this.innovations.get(key);
 	}
 
-	public int getOutputOffset()
+	public NEATInnovation aquireNodeInnovation(final int nodeID) // ONLY for input, output, and bias nodes.
 	{
-		return 1 + this.getNumInputs();
+		final String key = NEATGenomeManager.getNodeKey(nodeID);
+		if (!this.innovations.containsKey(key)) this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), nodeID));
+		return this.innovations.get(key);
+	}
+
+	public NEATInnovation aquireSplitInnovation(final int fromNode, final int toNode) // For a split mutation
+	{
+		final String key = NEATGenomeManager.getSplitKey(fromNode, toNode);
+		if (!this.innovations.containsKey(key)) this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), this.getNewNeuronID()));
+		return this.innovations.get(key);
 	}
 
 	public int getBiasOffset()
@@ -45,19 +80,29 @@ public class NEATGenomeManager
 		return 0;
 	}
 
+	public void tweakSpeciesCutoff(boolean up)
+	{
+		this.speciesCutoff += up ? this.speciesCutoffDelta : -this.speciesCutoffDelta;
+	}
+
+	public double getDisjointGeneCoefficient()
+	{
+		return this.disjointGeneCoefficient;
+	}
+
+	public double getExcessGeneCoefficient()
+	{
+		return this.excessGeneCoefficient;
+	}
+
 	public int getHiddenOffset()
 	{
 		return 1 + this.getNumInputs() + this.getNumOutputs();
 	}
 
-	public int getNumInputs()
+	public int getInputOffset()
 	{
-		return this.numInputs;
-	}
-
-	public int getNumOutputs()
-	{
-		return this.numOutputs;
+		return 1;
 	}
 
 	public int getNewInnovationID()
@@ -70,48 +115,41 @@ public class NEATGenomeManager
 		return this.globalNeuronID++;
 	}
 
-	public static String getLinkKey(int fromNode, int toNode)
+	public int getNumInputs()
 	{
-		return "link_" + fromNode + ":" + toNode;
+		return this.numInputs;
 	}
 
-	public static String getNodeKey(int nodeID)
+	public int getNumOutputs()
 	{
-		return "node_" + nodeID;
+		return this.numOutputs;
 	}
 
-	public static String getSplitKey(int fromNode, int toNode)
+	public int getOutputOffset()
 	{
-		return "split_" + fromNode + ":" + toNode;
+		return 1 + this.getNumInputs();
 	}
 
-	public NEATInnovation aquireLinkInnovation(int fromNode, int toNode) // For a link mutation
+	public double getSpeciesCutoff()
 	{
-		String key = NEATGenomeManager.getLinkKey(fromNode, toNode);
-		if (!innovations.containsKey(key))
-		{
-			this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), -1));
-		}
-		return innovations.get(key);
+		return this.speciesCutoff;
 	}
 
-	public NEATInnovation aquireNodeInnovation(int nodeID) // ONLY for input, output, and bias nodes.
+	public int getSpeciesTarget()
 	{
-		String key = NEATGenomeManager.getNodeKey(nodeID);
-		if (!innovations.containsKey(key))
-		{
-			this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), nodeID));
-		}
-		return innovations.get(key);
+		return this.speciesTarget;
 	}
 
-	public NEATInnovation aquireSplitInnovation(int fromNode, int toNode) // For a split mutation
+	public double getWeightDifferenceCoefficient()
 	{
-		String key = NEATGenomeManager.getSplitKey(fromNode, toNode);
-		if (!innovations.containsKey(key))
-		{
-			this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), this.getNewNeuronID()));
-		}
-		return innovations.get(key);
+		return this.weightDifferenceCoefficient;
+	}
+
+	/**
+	 * @return the speciesCutoffDelta
+	 */
+	public double getSpeciesCutoffDelta()
+	{
+		return speciesCutoffDelta;
 	}
 }

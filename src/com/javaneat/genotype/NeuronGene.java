@@ -1,6 +1,6 @@
 package com.javaneat.genotype;
 
-public class NeuronGene
+public class NeuronGene implements Comparable<NeuronGene>
 {
 	private int			neuronID;
 	private int			innovationID;
@@ -20,8 +20,18 @@ public class NeuronGene
 		this.neuronType = neuronType;
 	}
 
+	public int getNeuronID()
+	{
+		return this.neuronID;
+	}
+
 	public String toString()
 	{
 		return "NeuronGene=[NeuronID:" + this.neuronID + ",InnovationID:" + this.innovationID + ",NeuronType:" + this.neuronType + "]";
+	}
+
+	public int compareTo(NeuronGene o)
+	{
+		return this.innovationID - o.innovationID;
 	}
 }
