@@ -1,4 +1,4 @@
-package com.javaneat.genotype;
+package com.javaneat.genome;
 
 public class ConnectionGene implements Comparable<ConnectionGene>
 {
@@ -8,7 +8,7 @@ public class ConnectionGene implements Comparable<ConnectionGene>
 	private double	weight;
 	private boolean	enabled;
 
-	public ConnectionGene(int fromNode, int toNode, int innovationID, double weight, boolean enabled)
+	public ConnectionGene(int fromNode, int toNode, int innovationID, double weight, boolean enabled) // Immutable-ish
 	{
 		this.fromNode = fromNode;
 		this.toNode = toNode;
@@ -20,6 +20,21 @@ public class ConnectionGene implements Comparable<ConnectionGene>
 	public int getInnovationID()
 	{
 		return this.innovationID;
+	}
+
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+	}
+
+	public void setWeight(double weight)
+	{
+		this.weight = weight;
+	}
+
+	public boolean getEnabled()
+	{
+		return this.enabled;
 	}
 
 	public double getWeight()

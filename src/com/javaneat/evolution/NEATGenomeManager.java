@@ -3,7 +3,7 @@ package com.javaneat.evolution;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.javaneat.genotype.NEATInnovation;
+import com.javaneat.genome.NEATInnovation;
 
 public class NEATGenomeManager
 {
@@ -29,13 +29,21 @@ public class NEATGenomeManager
 	private final Map<String, NEATInnovation>	innovations			= new HashMap<String, NEATInnovation>();
 	private final int							numInputs;
 	private final int							numOutputs;
+	private final int							populationSize;
 	private double								speciesCutoff;
 	private final double						speciesCutoffDelta;
 	private final int							speciesTarget;
 	private final double						weightDifferenceCoefficient;
+	private final int							speciesStagnantTimeLimit;
+	private final double						mutationWeightProb;
+	private final double						mutationAddLinkProb;
+	private final double						mutationAddNodeProb;
+	private final double						mutationWeightRange;
 
 	public NEATGenomeManager(final int numInputs, final int numOutputs, final double disjointGeneCoefficient, final double excessGeneCoefficient,
-			final double weightDifferenceCoefficient, final int speciesTarget, final double speciesCutoff, final double speciesCutoffDelta)
+			final double weightDifferenceCoefficient, final int speciesTarget, final double speciesCutoff, final double speciesCutoffDelta,
+			final int populationSize, final int speciesStagnantTimeLimit, final double mutationWeightProb, final double mutationAddLinkProb,
+			final double mutationAddNodeProb, final double mutationWeightRange)
 	{
 		this.numInputs = numInputs;
 		this.numOutputs = numOutputs;
@@ -45,6 +53,12 @@ public class NEATGenomeManager
 		this.speciesTarget = speciesTarget;
 		this.speciesCutoff = speciesCutoff;
 		this.speciesCutoffDelta = speciesCutoffDelta;
+		this.populationSize = populationSize;
+		this.speciesStagnantTimeLimit = speciesStagnantTimeLimit;
+		this.mutationWeightProb = mutationWeightProb;
+		this.mutationWeightRange = mutationWeightRange;
+		this.mutationAddLinkProb = mutationAddLinkProb;
+		this.mutationAddNodeProb = mutationAddNodeProb;
 
 		// Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
 		this.aquireNodeInnovation(this.getNewNeuronID()); // Bias
@@ -52,6 +66,11 @@ public class NEATGenomeManager
 			this.aquireNodeInnovation(this.getNewNeuronID()); // Inputs
 		for (int i = 0; i < this.numOutputs; i++)
 			this.aquireNodeInnovation(this.getNewNeuronID()); // Outputs
+	}
+
+	public int getSpeciesStagnantTimeLimit()
+	{
+		return this.speciesStagnantTimeLimit;
 	}
 
 	public NEATInnovation aquireLinkInnovation(final int fromNode, final int toNode) // For a link mutation
@@ -78,11 +97,6 @@ public class NEATGenomeManager
 	public int getBiasOffset()
 	{
 		return 0;
-	}
-
-	public void tweakSpeciesCutoff(boolean up)
-	{
-		this.speciesCutoff += up ? this.speciesCutoffDelta : -this.speciesCutoffDelta;
 	}
 
 	public double getDisjointGeneCoefficient()
@@ -130,9 +144,22 @@ public class NEATGenomeManager
 		return 1 + this.getNumInputs();
 	}
 
+	public int getPopulationSize()
+	{
+		return this.populationSize;
+	}
+
 	public double getSpeciesCutoff()
 	{
 		return this.speciesCutoff;
+	}
+
+	/**
+	 * @return the speciesCutoffDelta
+	 */
+	public double getSpeciesCutoffDelta()
+	{
+		return this.speciesCutoffDelta;
 	}
 
 	public int getSpeciesTarget()
@@ -145,11 +172,40 @@ public class NEATGenomeManager
 		return this.weightDifferenceCoefficient;
 	}
 
-	/**
-	 * @return the speciesCutoffDelta
-	 */
-	public double getSpeciesCutoffDelta()
+	public void tweakSpeciesCutoff(final boolean up)
 	{
-		return speciesCutoffDelta;
+		this.speciesCutoff += up ? this.speciesCutoffDelta : -this.speciesCutoffDelta;
+	}
+
+	/**
+	 * @return the mutationWeightProb
+	 */
+	public double getMutationWeightProb()
+	{
+		return mutationWeightProb;
+	}
+
+	/**
+	 * @return the mutationAddLinkProb
+	 */
+	public double getMutationAddLinkProb()
+	{
+		return mutationAddLinkProb;
+	}
+
+	/**
+	 * @return the mutationAddNodeProb
+	 */
+	public double getMutationAddNodeProb()
+	{
+		return mutationAddNodeProb;
+	}
+
+	/**
+	 * @return the mutationWeightRange
+	 */
+	public double getMutationWeightRange()
+	{
+		return mutationWeightRange;
 	}
 }

@@ -1,4 +1,4 @@
-package com.javaneat.genotype;
+package com.javaneat.genome;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,23 +9,25 @@ import com.javaneat.evolution.NEATGenomeManager;
 
 public class NEATSpecies
 {
-	NEATGenotype		leader;
+	NEATGenome			leader;
 	NEATGenomeManager	manager;
-	List<NEATGenotype>	members	= new ArrayList<NEATGenotype>();
+	List<NEATGenome>	members						= new ArrayList<NEATGenome>();
+	private double		maxAverageFitness			= 0;
+	private int			timesSinceLastImprovement	= 0;
 
-	public NEATSpecies(final NEATGenotype leader)
+	public NEATSpecies(final NEATGenome leader)
 	{
 		this.leader = leader;
 		this.manager = leader.getManager();
 		this.attemptAddMember(leader);
 	}
 
-	public NEATGenotype getLeader()
+	public NEATGenome getLeader()
 	{
 		return this.leader;
 	}
 
-	public boolean attemptAddMember(NEATGenotype genome)
+	public boolean attemptAddMember(NEATGenome genome)
 	{
 		if (this.isCompatible(genome))
 		{
@@ -36,17 +38,49 @@ public class NEATSpecies
 		return false;
 	}
 
-	public List<NEATGenotype> getMembers()
+	public double getAverageFitness()
+	{
+		double total = 0;
+		for (NEATGenome genome : this.members)
+		{
+			total += genome.getScore();
+		}
+		total /= this.members.size();
+
+		if (total > this.maxAverageFitness)
+		{
+			this.maxAverageFitness = total;
+			this.timesSinceLastImprovement = 0;
+		}
+		else
+		{
+			this.timesSinceLastImprovement++;
+		}
+
+		return total;
+	}
+
+	public int getTimesSinceLastImprovement()
+	{
+		return this.timesSinceLastImprovement;
+	}
+
+	public int getOffspringAllotment(double totalAverageFitness, int populationSize)
+	{
+		return (int) FastMath.round(populationSize * this.getAverageFitness() / totalAverageFitness);
+	}
+
+	public List<NEATGenome> getMembers()
 	{
 		return this.members;
 	}
 
-	public void setLeader(final NEATGenotype leader)
+	public void setLeader(final NEATGenome leader)
 	{
 		this.leader = leader;
 	}
 
-	public boolean isCompatible(NEATGenotype genome)
+	public boolean isCompatible(NEATGenome genome)
 	{
 		return this.getGenomeDistance(this.leader, genome) < this.manager.getSpeciesCutoff();
 	}
@@ -56,7 +90,7 @@ public class NEATSpecies
 		return "NEATSpecies=[Leader:" + this.leader + ",Members:" + this.members + "]";
 	}
 
-	public double getGenomeDistance(NEATGenotype genome1, NEATGenotype genome2)
+	public double getGenomeDistance(NEATGenome genome1, NEATGenome genome2)
 	{
 		// System.out.println("[DistanceCalc]");
 		genome1.sortGenes();

@@ -1,6 +1,5 @@
 package com.javaneat.evolution;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -12,7 +11,7 @@ import org.uncommons.watchmaker.framework.GenerationalEvolutionEngine;
 import org.uncommons.watchmaker.framework.SelectionStrategy;
 import org.uncommons.watchmaker.framework.selection.TournamentSelection;
 
-import com.javaneat.genotype.NEATGenotype;
+import com.javaneat.genome.NEATGenome;
 
 public class RunDemo
 {
@@ -23,36 +22,39 @@ public class RunDemo
 
 		final int numInputs = 2;
 		final int numOutputs = 2;
+		final int populationSize = 100;
 		final double disjointGeneCoefficient = 2;
 		final double excessGeneCoefficient = 2;
 		final double weightDifferenceCoefficient = 1;
 		final int speciesTarget = 10;
+		final int speciesStagnantTimeLimit = 20;
 		final double speciesCutoff = 4;
 		final double speciesCutoffDelta = 0.3;
+		final double mutationWeightProb = 0.5;
+		final double mutationAddLinkProb = 0.1;
+		final double mutationAddNodeProb = 0.05;
+		final double mutationWeightRange = 1;
 		NEATGenomeManager manager = new NEATGenomeManager(numInputs, numOutputs, disjointGeneCoefficient, excessGeneCoefficient, weightDifferenceCoefficient,
-				speciesTarget, speciesCutoff, speciesCutoffDelta);
+				speciesTarget, speciesCutoff, speciesCutoffDelta, populationSize, speciesStagnantTimeLimit, mutationWeightProb, mutationAddLinkProb,
+				mutationAddNodeProb, mutationWeightRange);
 
-		List<NEATGenotype> genomes = new ArrayList<NEATGenotype>();
-		for (int i = 0; i < 10; i++)
+		CandidateFactory<NEATGenome> candidateFactory = new NEATGenotypeFactory(manager);
+		EvolutionaryOperator<NEATGenome> evolutionScheme = new NEATEvolutionaryOperator(manager);
+		FitnessEvaluator<NEATGenome> fitnessEvaluator = new FitnessEvaluator<NEATGenome>()
 		{
-			NEATGenotype genotype = new NEATGenotype(rng, manager);
-			genomes.add(genotype);
-			System.out.println(genotype);
-		}
 
-		NEATEvolutionaryOperator operator = new NEATEvolutionaryOperator(manager);
-		List<NEATGenotype> alteredGenomes = operator.apply(genomes, rng);
-		for (NEATGenotype genome : alteredGenomes)
-		{
-			System.out.println(genome);
-		}
-		// System.out.println("Distance between 1 and 2: " + operator.getGenomeDistance(genomes.get(0), genomes.get(1)));
+			public double getFitness(NEATGenome candidate, List<? extends NEATGenome> population)
+			{
+				return candidate.getConnectionGeneList().size() + candidate.getNeuronGeneList().size();
+			}
 
-		CandidateFactory<NEATGenotype> candidateFactory = new NEATGenotypeFactory(manager);
-		EvolutionaryOperator<NEATGenotype> evolutionScheme = null;
-		FitnessEvaluator<NEATGenotype> fitnessEvaluator = null;
+			public boolean isNatural()
+			{
+				return true;
+			}
+		};
 
-		GenerationalEvolutionEngine<NEATGenotype> ge = new GenerationalEvolutionEngine<NEATGenotype>(candidateFactory, evolutionScheme, fitnessEvaluator,
+		GenerationalEvolutionEngine<NEATGenome> ge = new GenerationalEvolutionEngine<NEATGenome>(candidateFactory, evolutionScheme, fitnessEvaluator,
 				selectionStrategy, rng);
 	}
 }

@@ -1,4 +1,4 @@
-package com.javaneat.genotype;
+package com.javaneat.genome;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,7 +7,8 @@ import java.util.Random;
 
 import com.javaneat.evolution.NEATGenomeManager;
 
-public class NEATGenotype
+public class NEATGenome
+// Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
 {
 	private final List<ConnectionGene>	connectionGeneList;
 	private final NEATGenomeManager		manager;
@@ -15,7 +16,7 @@ public class NEATGenotype
 	private NEATSpecies					species;
 	private double						score;
 
-	public NEATGenotype(final List<ConnectionGene> connections, final List<NeuronGene> neurons, final NEATGenomeManager manager)
+	public NEATGenome(final List<ConnectionGene> connections, final List<NeuronGene> neurons, final NEATGenomeManager manager)
 	{
 		this.manager = manager;
 		this.connectionGeneList = new ArrayList<ConnectionGene>(connections.size());
@@ -26,12 +27,12 @@ public class NEATGenotype
 			this.neuronGeneList.add(new NeuronGene(gene));
 	}
 
-	public NEATGenotype(final NEATGenotype other)
+	public NEATGenome(final NEATGenome other)
 	{
 		this(other.connectionGeneList, other.neuronGeneList, other.manager);
 	}
 
-	public NEATGenotype(final Random rng, final NEATGenomeManager manager)
+	public NEATGenome(final Random rng, final NEATGenomeManager manager)
 	{
 		this.manager = manager;
 		this.connectionGeneList = new ArrayList<ConnectionGene>(1);
@@ -95,7 +96,7 @@ public class NEATGenotype
 	@Override
 	public String toString()
 	{
-		return "NEATGenotype=[ConnectionGenes:" + this.connectionGeneList + ",NodeGenes:" + this.neuronGeneList + ",Manager:" + this.manager + "]";
+		return "NEATGenome=[ConnectionGenes:" + this.connectionGeneList + ",NodeGenes:" + this.neuronGeneList + ",Manager:" + this.manager + "]";
 	}
 
 	/**
@@ -113,6 +114,11 @@ public class NEATGenotype
 	public void setSpecies(NEATSpecies species)
 	{
 		this.species = species;
+	}
+
+	public double getAdjustedScore()
+	{
+		return this.score / this.species.getMembers().size();
 	}
 
 	/**

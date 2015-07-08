@@ -1,4 +1,4 @@
-package com.javaneat.genotype;
+package com.javaneat.genome;
 
 public class NeuronGene implements Comparable<NeuronGene>
 {
