@@ -24,7 +24,17 @@ public class NEATGenome
 		for (final ConnectionGene gene : connections)
 			this.connectionGeneList.add(new ConnectionGene(gene));
 		for (final NeuronGene gene : neurons)
-			this.neuronGeneList.add(new NeuronGene(gene));
+		{
+			try
+			{
+				this.neuronGeneList.add(new NeuronGene(gene));
+			}
+			catch (NullPointerException e)
+			{
+				System.err.println("NeuronGene being added: " + gene);
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public NEATGenome(final NEATGenome other)
@@ -61,6 +71,7 @@ public class NEATGenome
 		{
 			if (gene.getNeuronID() == neuronID) return gene;
 		}
+		// throw new NullPointerException("Neuron not found! NeuronID: " + neuronID + "\n Neurons: " + this.neuronGeneList);
 		return null;
 	}
 
@@ -96,6 +107,11 @@ public class NEATGenome
 	@Override
 	public String toString()
 	{
+		return new NEATGenome(this).toStringHelp();
+	}
+
+	private String toStringHelp()
+	{
 		return "NEATGenome=[ConnectionGenes:" + this.connectionGeneList + ",NodeGenes:" + this.neuronGeneList + ",Manager:" + this.manager + "]";
 	}
 
@@ -118,7 +134,10 @@ public class NEATGenome
 
 	public double getAdjustedScore()
 	{
-		return this.score / this.species.getMembers().size();
+		if (this.species != null)
+			return this.score / this.species.getMembers().size();
+		else
+			return this.score;
 	}
 
 	/**

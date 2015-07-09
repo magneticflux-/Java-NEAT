@@ -1,7 +1,9 @@
 package com.javaneat.evolution;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -124,8 +126,8 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 			if (selectedGene != null)
 			{
 				selectedGene = new ConnectionGene(selectedGene.getFromNode(), selectedGene.getToNode(), selectedGene.getInnovationID(),
-						selectedGene.getWeight(), selectedGene.getEnabled() || rng.nextInt(4) == 0); // 75% chance to be disabled if the parent's gene was
-																										// disabled
+						selectedGene.getWeight(), selectedGene.getEnabled() || rng.nextInt(4) == 0);
+				// 75% chance to be disabled if the parent's gene was disabled
 				if (offspringConnectionGenes.size() == 0)
 				{
 					offspringConnectionGenes.add(selectedGene);
@@ -144,13 +146,25 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 
 				if (!addedNeuronIDs.contains(selectedGene.getFromNode()))
 				{
-					offspringNeuronGenes.add(this.getNeuron(selectedGene.getFromNode(), best, notBest, rng));
+					NeuronGene gene = this.getNeuron(selectedGene.getFromNode(), best, notBest, rng);
+					offspringNeuronGenes.add(gene);
 					addedNeuronIDs.add(selectedGene.getFromNode());
+					if (gene == null)
+					{
+						System.err.println("\nAlpha parent: " + alpha + "\nBeta parent: " + beta + "\nSelected gene: " + selectedGene);
+					}
+					assert gene != null : "NeuronID is " + selectedGene.getFromNode();
 				}
 				if (!addedNeuronIDs.contains(selectedGene.getToNode()))
 				{
-					offspringNeuronGenes.add(this.getNeuron(selectedGene.getToNode(), best, notBest, rng));
+					NeuronGene gene = this.getNeuron(selectedGene.getToNode(), best, notBest, rng);
+					offspringNeuronGenes.add(gene);
 					addedNeuronIDs.add(selectedGene.getToNode());
+					if (gene == null)
+					{
+						System.err.println("\nAlpha parent: " + alpha + "\nBeta parent: " + beta + "\nSelected gene: " + selectedGene);
+					}
+					assert gene != null;
 				}
 			}
 		}
@@ -162,24 +176,35 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 
 	public List<NEATGenome> apply(List<NEATGenome> selectedCandidates, Random rng)
 	{
-		for (NEATSpecies species : this.speciesList) // Reset species and chose the closest to the leader in the next generation
+		List<NEATGenome> originalSelectedCandidates = Collections.unmodifiableList(new ArrayList<NEATGenome>(selectedCandidates)); // Preserve the originals
+
+		for (Iterator<NEATSpecies> i = this.speciesList.iterator(); i.hasNext();) // Reset species and chose the closest to the leader in the next generation
 		{
+			NEATSpecies species = i.next();
+
 			species.getMembers().clear();
 			double minDistance = Double.MAX_VALUE; // Just to be safe lol
 			NEATGenome bestCandidate = null;
 			for (NEATGenome genome : selectedCandidates)
 			{
 				double val = species.getGenomeDistance(species.getLeader(), genome);
-				if (val < minDistance)
+				if (val < minDistance && val < this.manager.getSpeciesCutoff())
 				{
 					minDistance = val;
 					bestCandidate = genome;
 				}
 			}
-			assert bestCandidate != null : "Failed to choose a successor :(";
-			species.setLeader(bestCandidate);
-			species.attemptAddMember(bestCandidate);
-			selectedCandidates.remove(bestCandidate); // Prevent it from being chosen twice
+			if (bestCandidate == null)
+			{
+				i.remove();
+			}
+			else
+			{
+				// assert bestCandidate != null : "Failed to choose a successor :(";
+				species.setLeader(bestCandidate);
+				species.attemptAddMember(bestCandidate);
+				selectedCandidates.remove(bestCandidate); // Prevent it from being chosen twice
+			}
 		}
 
 		for (NEATGenome genome : selectedCandidates) // Add genomes to the species
@@ -199,7 +224,7 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 
 		}
 
-		this.manager.tweakSpeciesCutoff(this.speciesList.size() < this.manager.getSpeciesTarget()); // Adjust the number of species to the target
+		this.manager.tweakSpeciesCutoff(this.speciesList.size() > this.manager.getSpeciesTarget()); // Adjust the number of species to the target
 
 		List<NEATGenome> newCandidates = new ArrayList<NEATGenome>(selectedCandidates.size()); // The list of modified candidates to be output
 
@@ -217,22 +242,45 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 			if (species.getTimesSinceLastImprovement() < this.manager.getSpeciesStagnantTimeLimit()) // Only include successful species in breeding
 			{
 				int offspringAllotment = species.getOffspringAllotment(totalAverageFitness, this.manager.getPopulationSize());
+				//System.out.println("	Species may breed " + offspringAllotment + " offspring. Total average fitness is " + totalAverageFitness
+				//		+ ". Species average fitness is " + species.getAverageFitness());
 
 				for (int i = 0; i < offspringAllotment; i++)
 				{
 					NEATGenome mom = species.getMembers().get(rng.nextInt(species.getMembers().size())); // Get two random genomes from the species
 					NEATGenome dad = species.getMembers().get(rng.nextInt(species.getMembers().size()));
+
 					NEATGenome offspring = this.mate(mom, dad, rng);
+
 					offspring = this.mutate(offspring, rng);
 					newCandidates.add(offspring);
 				}
 			}
 		}
 
-		for (NEATSpecies species : this.speciesList)
-			System.out.println(species);
+		System.out.println(newCandidates.size() + ", " + this.manager.getPopulationSize() + " " + this.manager.getSpeciesCutoff() + " NumSpecies: "
+				+ this.speciesList.size());
+		for (int i = 0; i < this.manager.getPopulationSize() - newCandidates.size();) // To mop up any rounding errors
+		{
+			// System.out.println("Added a genome");
+			NEATGenome mom = originalSelectedCandidates.get(rng.nextInt(originalSelectedCandidates.size()));
+			NEATGenome dad = originalSelectedCandidates.get(rng.nextInt(originalSelectedCandidates.size()));
+			// Get two random genomes from the entire population
 
-		assert newCandidates.size() == this.manager.getPopulationSize() : "Apparently there was a rounding error, and the size of the population was less than usual.";
+			NEATGenome offspring = this.mate(mom, dad, rng);
+			offspring = this.mutate(offspring, rng);
+			newCandidates.add(offspring);
+		}
+
+		for (int i = 0; i < newCandidates.size() - this.manager.getPopulationSize();)
+		{
+			// System.out.println("Removed a genome");
+			newCandidates.remove(rng.nextInt(newCandidates.size()));
+		}
+
+		assert newCandidates.size() == this.manager.getPopulationSize() : "Apparently there was a rounding error, and the size of the population was less than usual. Population Size: "
+				+ newCandidates.size() + ", Target Size: " + this.manager.getPopulationSize();
+
 		return newCandidates;
 	}
 
@@ -264,15 +312,19 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 			int tries = 0;
 			do
 			{
-				neuronFrom = rng.nextInt(mutated.getNeuronGeneList().size());
-				neuronTo = rng.nextInt(mutated.getNeuronGeneList().size() - this.manager.getOutputOffset()) + this.manager.getOutputOffset();
+				neuronFrom = mutated.getNeuronGeneList().get(rng.nextInt(mutated.getNeuronGeneList().size())).getNeuronID();
+				neuronTo = mutated.getNeuronGeneList()
+						.get(rng.nextInt(mutated.getNeuronGeneList().size() - this.manager.getOutputOffset()) + this.manager.getOutputOffset()).getNeuronID();
 				// Exclude input and bias nodes, they don't make sense
 			}
 			while (this.linkAlreadyExists(mutated, neuronFrom, neuronTo) && (tries++ < 10));
 
 			if (!this.linkAlreadyExists(mutated, neuronFrom, neuronTo))
-				mutated.getConnectionGeneList().add(
-						new ConnectionGene(neuronFrom, neuronTo, this.manager.aquireLinkInnovation(neuronFrom, neuronTo).getInnovationID(), 1, true));
+			{
+				ConnectionGene gene = new ConnectionGene(neuronFrom, neuronTo, this.manager.aquireLinkInnovation(neuronFrom, neuronTo).getInnovationID(), 1,
+						true);
+				mutated.getConnectionGeneList().add(gene);
+			}
 		}
 
 		if (rng.nextDouble() < this.manager.getMutationAddNodeProb()) // Split a link
@@ -283,7 +335,8 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 			replaced.setEnabled(false); // Disable it
 
 			int neuronID = this.manager.getNewNeuronID();
-			NeuronGene insertedNeuron = new NeuronGene(neuronID, this.manager.aquireNodeInnovation(neuronID).getInnovationID(), NeuronType.HIDDEN);
+			NeuronGene insertedNeuron = new NeuronGene(neuronID, this.manager.aquireSplitInnovation(replaced.getFromNode(), replaced.getToNode())
+					.getInnovationID(), NeuronType.HIDDEN);
 			ConnectionGene leftConnection = new ConnectionGene(replaced.getFromNode(), neuronID, this.manager.aquireLinkInnovation(replaced.getFromNode(),
 					neuronID).getInnovationID(), 1, true);
 			ConnectionGene rightConnection = new ConnectionGene(neuronID, replaced.getToNode(), this.manager.aquireLinkInnovation(neuronID,
