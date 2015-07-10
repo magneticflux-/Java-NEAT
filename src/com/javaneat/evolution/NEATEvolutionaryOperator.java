@@ -229,11 +229,13 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 		List<NEATGenome> newCandidates = new ArrayList<NEATGenome>(selectedCandidates.size()); // The list of modified candidates to be output
 
 		double totalAverageFitness = 0;
+		int numBreedingSpecies = 0;
 		for (NEATSpecies species : this.speciesList) // Adding the average species fitness from the new species
 		{
 			if (species.getTimesSinceLastImprovement() < this.manager.getSpeciesStagnantTimeLimit()) // Only include successful species in breeding
 			{
 				totalAverageFitness += species.getAverageFitness();
+				numBreedingSpecies++;
 			}
 		}
 
@@ -242,8 +244,8 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 			if (species.getTimesSinceLastImprovement() < this.manager.getSpeciesStagnantTimeLimit()) // Only include successful species in breeding
 			{
 				int offspringAllotment = species.getOffspringAllotment(totalAverageFitness, this.manager.getPopulationSize());
-				//System.out.println("	Species may breed " + offspringAllotment + " offspring. Total average fitness is " + totalAverageFitness
-				//		+ ". Species average fitness is " + species.getAverageFitness());
+				// System.out.println("	Species may breed " + offspringAllotment + " offspring. Total average fitness is " + totalAverageFitness
+				// + ". Species average fitness is " + species.getAverageFitness());
 
 				for (int i = 0; i < offspringAllotment; i++)
 				{
@@ -258,8 +260,9 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 			}
 		}
 
-		System.out.println(newCandidates.size() + ", " + this.manager.getPopulationSize() + " " + this.manager.getSpeciesCutoff() + " NumSpecies: "
+		System.out.println(newCandidates.size() + "/" + this.manager.getPopulationSize() + " " + this.manager.getSpeciesCutoff() + " NumSpecies: "
 				+ this.speciesList.size());
+		System.out.println("Average Species Fitness: " + totalAverageFitness / numBreedingSpecies);
 		for (int i = 0; i < this.manager.getPopulationSize() - newCandidates.size();) // To mop up any rounding errors
 		{
 			// System.out.println("Added a genome");

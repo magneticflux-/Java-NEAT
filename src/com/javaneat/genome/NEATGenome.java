@@ -107,11 +107,6 @@ public class NEATGenome
 	@Override
 	public String toString()
 	{
-		return new NEATGenome(this).toStringHelp();
-	}
-
-	private String toStringHelp()
-	{
 		return "NEATGenome=[ConnectionGenes:" + this.connectionGeneList + ",NodeGenes:" + this.neuronGeneList + ",Manager:" + this.manager + "]";
 	}
 
@@ -134,7 +129,7 @@ public class NEATGenome
 
 	public double getAdjustedScore()
 	{
-		if (this.species != null)
+		if (this.species != null && this.species.getMembers().size() != 0)
 			return this.score / this.species.getMembers().size();
 		else
 			return this.score;

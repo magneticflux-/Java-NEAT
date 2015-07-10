@@ -2,31 +2,31 @@ package com.javaneat.phenome;
 
 public class NEATConnection
 {
-	private final int		toNeuron;
-	private final int		fromNeuron;
+	private final int		toIndex;
+	private final int		fromIndex;
 	private final double	weight;
 
-	public NEATConnection(int toNeuron, int fromNeuron, double weight)
+	public NEATConnection(int toIndex, int fromIndex, double weight)
 	{
-		this.toNeuron = toNeuron;
-		this.fromNeuron = fromNeuron;
+		this.toIndex = toIndex;
+		this.fromIndex = fromIndex;
 		this.weight = weight;
 	}
 
 	/**
 	 * @return the toNeuron
 	 */
-	public int getToNeuron()
+	public int getToIndex()
 	{
-		return toNeuron;
+		return toIndex;
 	}
 
 	/**
 	 * @return the fromNeuron
 	 */
-	public int getFromNeuron()
+	public int getFromIndex()
 	{
-		return fromNeuron;
+		return fromIndex;
 	}
 
 	/**
