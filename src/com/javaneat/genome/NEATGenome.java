@@ -16,6 +16,14 @@ public class NEATGenome
 	private NEATSpecies					species;
 	private double						score;
 
+	@SuppressWarnings("unused")
+	private NEATGenome() // This is to serialize properly
+	{
+		this.connectionGeneList = new ArrayList<ConnectionGene>();
+		this.neuronGeneList = new ArrayList<NeuronGene>();
+		this.manager = null;
+	}
+
 	public NEATGenome(final List<ConnectionGene> connections, final List<NeuronGene> neurons, final NEATGenomeManager manager)
 	{
 		this.manager = manager;

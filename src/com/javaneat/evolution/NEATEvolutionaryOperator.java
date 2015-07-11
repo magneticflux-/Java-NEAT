@@ -176,6 +176,7 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 
 	public List<NEATGenome> apply(List<NEATGenome> selectedCandidates, Random rng)
 	{
+		@SuppressWarnings("unused")
 		List<NEATGenome> originalSelectedCandidates = Collections.unmodifiableList(new ArrayList<NEATGenome>(selectedCandidates)); // Preserve the originals
 
 		for (Iterator<NEATSpecies> i = this.speciesList.iterator(); i.hasNext();) // Reset species and chose the closest to the leader in the next generation
@@ -263,26 +264,29 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 		System.out.println(newCandidates.size() + "/" + this.manager.getPopulationSize() + " " + this.manager.getSpeciesCutoff() + " NumSpecies: "
 				+ this.speciesList.size());
 		System.out.println("Average Species Fitness: " + totalAverageFitness / numBreedingSpecies);
-		for (int i = 0; i < this.manager.getPopulationSize() - newCandidates.size();) // To mop up any rounding errors
-		{
-			// System.out.println("Added a genome");
-			NEATGenome mom = originalSelectedCandidates.get(rng.nextInt(originalSelectedCandidates.size()));
-			NEATGenome dad = originalSelectedCandidates.get(rng.nextInt(originalSelectedCandidates.size()));
-			// Get two random genomes from the entire population
+		// for (int i = 0; i < this.manager.getPopulationSize() - newCandidates.size();) // To mop up any rounding errors
+		// {
+		// System.out.println("Added a genome");
+		// NEATGenome mom = originalSelectedCandidates.get(rng.nextInt(originalSelectedCandidates.size()));
+		// NEATGenome dad = originalSelectedCandidates.get(rng.nextInt(originalSelectedCandidates.size()));
+		// Get two random genomes from the entire population
 
-			NEATGenome offspring = this.mate(mom, dad, rng);
-			offspring = this.mutate(offspring, rng);
-			newCandidates.add(offspring);
-		}
+		// NEATGenome offspring = this.mate(mom, dad, rng);
+		// offspring = this.mutate(offspring, rng);
+		// newCandidates.add(offspring);
+		// }
 
-		for (int i = 0; i < newCandidates.size() - this.manager.getPopulationSize();)
-		{
-			// System.out.println("Removed a genome");
-			newCandidates.remove(rng.nextInt(newCandidates.size()));
-		}
+		// for (int i = 0; i < newCandidates.size() - this.manager.getPopulationSize();)
+		// {
+		// System.out.println("Removed a genome");
+		// NEATGenome toRemove = newCandidates.get(rng.nextInt(newCandidates.size()));
+		// newCandidates.remove(toRemove);
+		// toRemove.getSpecies().getMembers().remove(toRemove);
+		// }
 
-		assert newCandidates.size() == this.manager.getPopulationSize() : "Apparently there was a rounding error, and the size of the population was less than usual. Population Size: "
-				+ newCandidates.size() + ", Target Size: " + this.manager.getPopulationSize();
+		// assert newCandidates.size() == this.manager.getPopulationSize() :
+		// "Apparently there was a rounding error, and the size of the population was less than usual. Population Size: "
+		// + newCandidates.size() + ", Target Size: " + this.manager.getPopulationSize();
 
 		return newCandidates;
 	}
@@ -324,8 +328,8 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 
 			if (!this.linkAlreadyExists(mutated, neuronFrom, neuronTo))
 			{
-				ConnectionGene gene = new ConnectionGene(neuronFrom, neuronTo, this.manager.aquireLinkInnovation(neuronFrom, neuronTo).getInnovationID(), 1,
-						true);
+				ConnectionGene gene = new ConnectionGene(neuronFrom, neuronTo, this.manager.aquireLinkInnovation(neuronFrom, neuronTo).getInnovationID(),
+						(rng.nextDouble() * 2 - 1) * this.manager.getMutationWeightRange(), true);
 				mutated.getConnectionGeneList().add(gene);
 			}
 		}
@@ -341,9 +345,9 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 			NeuronGene insertedNeuron = new NeuronGene(neuronID, this.manager.aquireSplitInnovation(replaced.getFromNode(), replaced.getToNode())
 					.getInnovationID(), NeuronType.HIDDEN);
 			ConnectionGene leftConnection = new ConnectionGene(replaced.getFromNode(), neuronID, this.manager.aquireLinkInnovation(replaced.getFromNode(),
-					neuronID).getInnovationID(), 1, true);
+					neuronID).getInnovationID(), (rng.nextDouble() * 2 - 1) * this.manager.getMutationWeightRange(), true);
 			ConnectionGene rightConnection = new ConnectionGene(neuronID, replaced.getToNode(), this.manager.aquireLinkInnovation(neuronID,
-					replaced.getToNode()).getInnovationID(), 1, true);
+					replaced.getToNode()).getInnovationID(), (rng.nextDouble() * 2 - 1) * this.manager.getMutationWeightRange(), true);
 
 			mutated.getNeuronGeneList().add(insertedNeuron);
 			mutated.getConnectionGeneList().add(leftConnection);

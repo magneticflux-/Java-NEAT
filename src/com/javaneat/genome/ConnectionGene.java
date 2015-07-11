@@ -8,6 +8,11 @@ public class ConnectionGene implements Comparable<ConnectionGene>
 	private double	weight;
 	private boolean	enabled;
 
+	@SuppressWarnings("unused")
+	private ConnectionGene() // This is to serialize properly
+	{
+	}
+
 	public ConnectionGene(int fromNode, int toNode, int innovationID, double weight, boolean enabled) // Immutable-ish
 	{
 		this.fromNode = fromNode;

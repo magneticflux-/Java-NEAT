@@ -40,6 +40,24 @@ public class NEATGenomeManager
 	private final double						mutationAddNodeProb;
 	private final double						mutationWeightRange;
 
+	@SuppressWarnings("unused")
+	private NEATGenomeManager() // This is to serialize properly
+	{
+		this.numInputs = 0;
+		this.numOutputs = 0;
+		this.disjointGeneCoefficient = 0;
+		this.excessGeneCoefficient = 0;
+		this.weightDifferenceCoefficient = 0;
+		this.speciesTarget = 0;
+		this.speciesCutoffDelta = 0;
+		this.populationSize = 0;
+		this.speciesStagnantTimeLimit = 0;
+		this.mutationWeightProb = 0;
+		this.mutationWeightRange = 0;
+		this.mutationAddLinkProb = 0;
+		this.mutationAddNodeProb = 0;
+	}
+
 	public NEATGenomeManager(final int numInputs, final int numOutputs, final double disjointGeneCoefficient, final double excessGeneCoefficient,
 			final double weightDifferenceCoefficient, final int speciesTarget, final double speciesCutoff, final double speciesCutoffDelta,
 			final int populationSize, final int speciesStagnantTimeLimit, final double mutationWeightProb, final double mutationAddLinkProb,
@@ -174,7 +192,8 @@ public class NEATGenomeManager
 
 	public void tweakSpeciesCutoff(final boolean up)
 	{
-		this.speciesCutoff += up ? this.speciesCutoffDelta : -this.speciesCutoffDelta;
+		if (this.speciesCutoff + (up ? this.speciesCutoffDelta : -this.speciesCutoffDelta) > 0)
+			this.speciesCutoff += up ? this.speciesCutoffDelta : -this.speciesCutoffDelta;
 	}
 
 	/**

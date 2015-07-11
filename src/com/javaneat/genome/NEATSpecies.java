@@ -15,6 +15,11 @@ public class NEATSpecies
 	private double		maxAverageFitness			= 0;
 	private int			timesSinceLastImprovement	= 0;
 
+	@SuppressWarnings("unused")
+	private NEATSpecies() // This is to serialize properly
+	{
+	}
+
 	public NEATSpecies(final NEATGenome leader)
 	{
 		this.leader = leader;

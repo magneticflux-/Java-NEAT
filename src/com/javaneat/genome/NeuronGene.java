@@ -6,6 +6,11 @@ public class NeuronGene implements Comparable<NeuronGene>
 	private int			innovationID;
 	private NeuronType	neuronType;
 
+	@SuppressWarnings("unused")
+	private NeuronGene() // This is to serialize properly
+	{
+	}
+
 	public NeuronGene(NeuronGene other)
 	{
 		this.neuronID = other.neuronID;

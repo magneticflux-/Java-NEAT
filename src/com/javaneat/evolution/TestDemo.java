@@ -6,35 +6,49 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import org.apache.commons.math3.util.FastMath;
-import org.uncommons.watchmaker.framework.PopulationData;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.grapeshot.halfnes.NES;
 import com.grapeshot.halfnes.ui.GUIImpl;
-import com.sandbox.evolve.NESFitnessEvaluator;
-import com.sandbox.neural.FeedforwardNetwork;
+import com.javaneat.genome.NEATGenome;
+import com.javaneat.phenome.NEATPhenome;
 
 public class TestDemo
 {
-	public static void main(String[] args)
+	public static double[] unwind2DArray(int[][] arr)
 	{
-		Kryo kryo= new Kryo();
+		double[] out = new double[arr.length * arr[0].length];
+		int i = 0;
+		for (int x = 0; x < arr[0].length; x++)
+		{
+			for (int y = 0; y < arr.length; y++)
+			{
+				out[i] = arr[y][x];
+				i++;
+			}
+		}
+		return out;
+	}
+
+	public static void main(String[] args) throws InterruptedException
+	{
+		Kryo kryo = new Kryo();
 		Input in = null;
 		try
 		{
-			in = new Input(new FileInputStream("codex/Mario/generation_1776.pop"));
+			in = new Input(new FileInputStream("NEAT-Mario/generation_1.pop"));
 		}
 		catch (final FileNotFoundException e1)
 		{
 			e1.printStackTrace();
 		}
-		@SuppressWarnings("unchecked")
-		FeedforwardNetwork candidate = ((PopulationData<FeedforwardNetwork>) kryo.readClassAndObject(in)).getBestCandidate();
+		NEATGenome candidate = ((NEATGenome) kryo.readClassAndObject(in));
 		in.close();
+		NEATPhenome network = new NEATPhenome(candidate);
 		NES nes = new NES(false);
-		nes.loadROM("C:\\Users\\Mitchell\\Desktop\\fceux-2.2.2-win32\\ROMs\\Super Mario Bros..nes");
 		nes.reset();
+		nes.loadROM("C:\\Users\\Mitchell\\Desktop\\fceux-2.2.2-win32\\ROMs\\Super Mario Bros..nes");
 		// NESFitnessEvaluator.loadSavestate(nes);
 
 		final GUIImpl gui = ((GUIImpl) nes.gui);
@@ -58,12 +72,17 @@ public class TestDemo
 		nes.frameAdvance();
 		input.keyReleased(START);
 
+		for (int i = 0; i < 162; i++)
+			// Exact frame number until Mario gains control
+			nes.frameAdvance();
+
 		int fitness = 0;
 		int maxDistance = 0;
 		int timeout = 0;
 
 		while (true)
 		{
+			Thread.sleep(100);
 			input.keyReleased(U);
 			input.keyReleased(D);
 			input.keyReleased(L);
@@ -95,11 +114,13 @@ public class TestDemo
 				timeout = 0;
 			}
 			// System.out.println("Lives: " + lives + " Timeout: " + timeout + " Distance: " + marioX);
-			if (lives <= 2 || timeout > 240 || marioState == 0x0B)
+			if (lives <= 2 || timeout > 90 || marioState == 0x0B)
 			{
 				fitness = points;
-				break;
+				// break;
 			}
+
+			System.out.println("Timeout: " + timeout + ", Time: " + time);
 
 			final int[][] vision = new int[10][10];
 
@@ -143,8 +164,8 @@ public class TestDemo
 				}
 			}
 
-			int[] visionunwound = NESFitnessEvaluator.unwind2DArray(vision);
-			double[] reactions = candidate.evaluate(visionunwound);
+			double[] visionunwound = NESFitness.unwind2DArray(vision);
+			double[] reactions = network.stepTime(visionunwound);
 
 			if (reactions[0] > 0) input.keyPressed(U);
 			if (reactions[1] > 0) input.keyPressed(D);
@@ -152,18 +173,14 @@ public class TestDemo
 			if (reactions[3] > 0) input.keyPressed(R);
 			if (reactions[4] > 0) input.keyPressed(A);
 			if (reactions[5] > 0) input.keyPressed(B);
-			//if (reactions[6] > 0) input.keyPressed(SELECT);
-			//if (reactions[7] > 0) input.keyPressed(START);
+			// if (reactions[6] > 0) input.keyPressed(SELECT);
+			// if (reactions[7] > 0) input.keyPressed(START);
 
-			System.out.println("Points: " + points + "Timeout: " + timeout);
 			nes.frameAdvance();
-			try
-			{
-				Thread.sleep(8);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
 		}
+		// fitness -= candidate.getConnectionGeneList().size() * 100;
+		// fitness -= 5400; // The approximate minimum
+		// System.out.println("Finished one evaluation that took " + (System.nanoTime() - startTime) / 1000000000f + " seconds.");
+		// fitness = fitness >= 0 ? fitness : 0;
+	}
 }
