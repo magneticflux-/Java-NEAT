@@ -33,6 +33,7 @@ import org.uncommons.watchmaker.swing.evolutionmonitor.EvolutionMonitor;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Output;
+import com.grapeshot.halfnes.CPURAM;
 import com.grapeshot.halfnes.NES;
 import com.grapeshot.halfnes.ui.GUIImpl;
 import com.javaneat.genome.ConnectionGene;
@@ -47,7 +48,7 @@ public class RunDemo
 		final Kryo kryo = new Kryo();
 		Random rng = new Random(0);
 
-		final int numInputs = 100;
+		final int numInputs = 169;
 		final int numOutputs = 6;
 		final int populationSize = 400;
 		final double eliteFraction = 0.1;
@@ -216,7 +217,8 @@ class NESFitness implements FitnessEvaluator<NEATGenome>
 		nes.reset();
 		// NESFitnessEvaluator.loadSavestate(nes);
 
-		final GUIImpl gui = ((GUIImpl) nes.gui);
+		final GUIImpl gui = ((GUIImpl) nes.getGUI());
+		CPURAM cpuram = nes.getCPURAM();
 		final KeyListener input = gui.getKeyListeners()[0];
 
 		final KeyEvent U = new KeyEvent(gui, 0, 0, 0, KeyEvent.VK_UP, '^');
@@ -252,18 +254,20 @@ class NESFitness implements FitnessEvaluator<NEATGenome>
 			input.keyReleased(SELECT);
 			input.keyReleased(START);
 
+			cpuram = nes.getCPURAM();
+
 			int score = 0;
 			int time = 0;
-			byte world = (byte) nes.cpuram.read(0x075F);
-			byte level = (byte) nes.cpuram.read(0x0760);
-			byte lives = (byte) (nes.cpuram.read(0x075A) + 1);
-			int marioX = nes.cpuram.read(0x6D) * 0x100 + nes.cpuram.read(0x86);
-			int marioY = nes.cpuram.read(0x03B8) + 16;
-			int marioState = nes.cpuram.read(0x000E);
+			byte world = (byte) cpuram.read(0x075F);
+			byte level = (byte) cpuram.read(0x0760);
+			byte lives = (byte) (cpuram.read(0x075A) + 1);
+			int marioX = cpuram.read(0x6D) * 0x100 + cpuram.read(0x86);
+			int marioY = cpuram.read(0x03B8) + 16;
+			int marioState = cpuram.read(0x000E);
 			for (int i = 0x07DD; i <= 0x07E2; i++)
-				score += nes.cpuram._read(i) * FastMath.pow(10, (0x07E2 - i + 1));
+				score += cpuram._read(i) * FastMath.pow(10, (0x07E2 - i + 1));
 			for (int i = 0x07F8; i <= 0x07FA; i++)
-				time += nes.cpuram._read(i) * FastMath.pow(10, (0x07FA - i));
+				time += cpuram._read(i) * FastMath.pow(10, (0x07FA - i));
 
 			int points = (score / 5) + (time * 10) + (marioX / 4) + (lives * 500) + (level * 250) + (world * 2000);
 
@@ -280,7 +284,7 @@ class NESFitness implements FitnessEvaluator<NEATGenome>
 				break;
 			}
 
-			final int[][] vision = new int[10][10];
+			final int[][] vision = new int[13][13];
 
 			for (int dx = -vision[0].length / 2; dx < vision[0].length / 2; dx += 1)
 				for (int dy = -vision.length / 2; dy < vision.length / 2; dy += 1)
@@ -299,17 +303,17 @@ class NESFitness implements FitnessEvaluator<NEATGenome>
 					else
 					{
 						// System.out.println("Block data at " + dx + ", " + dy + ": " + nes.cpuram.read(addr));
-						vision[dy + (vision.length / 2)][dx + (vision[0].length / 2)] = nes.cpuram.read(addr);
+						vision[dy + (vision.length / 2)][dx + (vision[0].length / 2)] = cpuram.read(addr);
 					}
 				}
 
 			for (int i = 0; i <= 4; i++)
 			{
-				int enemy = nes.cpuram.read(0xF + i);
+				int enemy = cpuram.read(0xF + i);
 				if (enemy != 0)
 				{
-					int ex = nes.cpuram.read(0x6E + i) * 0x100 + nes.cpuram.read(0x87 + i);
-					int ey = nes.cpuram.read(0xCF + i) + 24;
+					int ex = cpuram.read(0x6E + i) * 0x100 + cpuram.read(0x87 + i);
+					int ey = cpuram.read(0xCF + i) + 24;
 					int enemyMarioDeltaX = (ex - marioX) / 16;
 					int enemyMarioDeltaY = (ey - marioY) / 16;
 					try

@@ -9,6 +9,7 @@ import org.apache.commons.math3.util.FastMath;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
+import com.grapeshot.halfnes.CPURAM;
 import com.grapeshot.halfnes.NES;
 import com.grapeshot.halfnes.ui.GUIImpl;
 import com.javaneat.genome.NEATGenome;
@@ -51,7 +52,8 @@ public class TestDemo
 		nes.loadROM("C:\\Users\\Mitchell\\Desktop\\fceux-2.2.2-win32\\ROMs\\Super Mario Bros..nes");
 		// NESFitnessEvaluator.loadSavestate(nes);
 
-		final GUIImpl gui = ((GUIImpl) nes.gui);
+		final GUIImpl gui = ((GUIImpl) nes.getGUI());
+		CPURAM cpuram = nes.getCPURAM();
 		final KeyListener input = gui.getKeyListeners()[0];
 
 		final KeyEvent U = new KeyEvent(gui, 0, 0, 0, KeyEvent.VK_UP, '^');
@@ -82,7 +84,8 @@ public class TestDemo
 
 		while (true)
 		{
-			Thread.sleep(100);
+			Thread.sleep(10);
+			long startTime1 = System.nanoTime();
 			input.keyReleased(U);
 			input.keyReleased(D);
 			input.keyReleased(L);
@@ -92,18 +95,20 @@ public class TestDemo
 			input.keyReleased(SELECT);
 			input.keyReleased(START);
 
+			cpuram = nes.getCPURAM();
+
 			int score = 0;
 			int time = 0;
-			byte world = (byte) nes.cpuram.read(0x075F);
-			byte level = (byte) nes.cpuram.read(0x0760);
-			byte lives = (byte) (nes.cpuram.read(0x075A) + 1);
-			int marioX = nes.cpuram.read(0x6D) * 0x100 + nes.cpuram.read(0x86);
-			int marioY = nes.cpuram.read(0x03B8) + 16;
-			int marioState = nes.cpuram.read(0x000E);
+			byte world = (byte) cpuram.read(0x075F);
+			byte level = (byte) cpuram.read(0x0760);
+			byte lives = (byte) (cpuram.read(0x075A) + 1);
+			int marioX = cpuram.read(0x6D) * 0x100 + cpuram.read(0x86);
+			int marioY = cpuram.read(0x03B8) + 16;
+			int marioState = cpuram.read(0x000E);
 			for (int i = 0x07DD; i <= 0x07E2; i++)
-				score += nes.cpuram._read(i) * FastMath.pow(10, (0x07E2 - i + 1));
+				score += cpuram._read(i) * FastMath.pow(10, (0x07E2 - i + 1));
 			for (int i = 0x07F8; i <= 0x07FA; i++)
-				time += nes.cpuram._read(i) * FastMath.pow(10, (0x07FA - i));
+				time += cpuram._read(i) * FastMath.pow(10, (0x07FA - i));
 
 			int points = (score / 5) + (time * 10) + (marioX / 4) + (lives * 500) + (level * 250) + (world * 2000);
 
@@ -120,7 +125,7 @@ public class TestDemo
 				// break;
 			}
 
-			System.out.println("Timeout: " + timeout + ", Time: " + time);
+			// System.out.println("Timeout: " + timeout + ", Time: " + time);
 
 			final int[][] vision = new int[10][10];
 
@@ -140,18 +145,18 @@ public class TestDemo
 					}
 					else
 					{
-						// System.out.println("Block data at " + dx + ", " + dy + ": " + nes.cpuram.read(addr));
-						vision[dy + (vision.length / 2)][dx + (vision[0].length / 2)] = nes.cpuram.read(addr);
+						// System.out.println("Block data at " + dx + ", " + dy + ": " + cpuram.read(addr));
+						vision[dy + (vision.length / 2)][dx + (vision[0].length / 2)] = cpuram.read(addr);
 					}
 				}
 
 			for (int i = 0; i <= 4; i++)
 			{
-				int enemy = nes.cpuram.read(0xF + i);
+				int enemy = cpuram.read(0xF + i);
 				if (enemy != 0)
 				{
-					int ex = nes.cpuram.read(0x6E + i) * 0x100 + nes.cpuram.read(0x87 + i);
-					int ey = nes.cpuram.read(0xCF + i) + 24;
+					int ex = cpuram.read(0x6E + i) * 0x100 + cpuram.read(0x87 + i);
+					int ey = cpuram.read(0xCF + i) + 24;
 					int enemyMarioDeltaX = (ex - marioX) / 16;
 					int enemyMarioDeltaY = (ey - marioY) / 16;
 					try
@@ -176,7 +181,9 @@ public class TestDemo
 			// if (reactions[6] > 0) input.keyPressed(SELECT);
 			// if (reactions[7] > 0) input.keyPressed(START);
 
+			long startTime2 = System.nanoTime();
 			nes.frameAdvance();
+			System.out.println("Took " + (System.nanoTime() - startTime2) / 1000000f + " ms to compute the NES, took " + (System.nanoTime() - startTime1) / 1000000f + "ms total.");
 		}
 		// fitness -= candidate.getConnectionGeneList().size() * 100;
 		// fitness -= 5400; // The approximate minimum
