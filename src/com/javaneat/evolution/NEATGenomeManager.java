@@ -39,6 +39,11 @@ public class NEATGenomeManager
 	private final double						mutationAddLinkProb;
 	private final double						mutationAddNodeProb;
 	private final double						mutationWeightRange;
+	private final double						mutationWeightWholeProb;
+	private final double						enableMutationProb;
+	private final double						disableMutationProb;
+	private final double						crossoverChance;
+	private final double						mutationRemoveLinkProb;
 
 	@SuppressWarnings("unused")
 	private NEATGenomeManager() // This is to serialize properly
@@ -56,12 +61,18 @@ public class NEATGenomeManager
 		this.mutationWeightRange = 0;
 		this.mutationAddLinkProb = 0;
 		this.mutationAddNodeProb = 0;
+		this.mutationWeightWholeProb = 0;
+		this.enableMutationProb = 0;
+		this.disableMutationProb = 0;
+		this.crossoverChance = 0;
+		this.mutationRemoveLinkProb = 0;
 	}
 
 	public NEATGenomeManager(final int numInputs, final int numOutputs, final double disjointGeneCoefficient, final double excessGeneCoefficient,
 			final double weightDifferenceCoefficient, final int speciesTarget, final double speciesCutoff, final double speciesCutoffDelta,
-			final int populationSize, final int speciesStagnantTimeLimit, final double mutationWeightProb, final double mutationAddLinkProb,
-			final double mutationAddNodeProb, final double mutationWeightRange)
+			final int populationSize, final int speciesStagnantTimeLimit, final double mutationWeightWholeProb, final double mutationWeightProb,
+			final double mutationAddLinkProb, final double mutationAddNodeProb, final double mutationWeightRange, final double enableMutationProb,
+			final double disableMutationProb, final double crossoverChance, final double mutationRemoveLinkProb)
 	{
 		this.numInputs = numInputs;
 		this.numOutputs = numOutputs;
@@ -77,6 +88,11 @@ public class NEATGenomeManager
 		this.mutationWeightRange = mutationWeightRange;
 		this.mutationAddLinkProb = mutationAddLinkProb;
 		this.mutationAddNodeProb = mutationAddNodeProb;
+		this.mutationWeightWholeProb = mutationWeightWholeProb;
+		this.enableMutationProb = enableMutationProb;
+		this.disableMutationProb = disableMutationProb;
+		this.crossoverChance = crossoverChance;
+		this.mutationRemoveLinkProb = mutationRemoveLinkProb;
 
 		// Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
 		this.aquireNodeInnovation(this.getNewNeuronID()); // Bias
@@ -86,9 +102,29 @@ public class NEATGenomeManager
 			this.aquireNodeInnovation(this.getNewNeuronID()); // Outputs
 	}
 
+	public double getCrossoverChance()
+	{
+		return this.crossoverChance;
+	}
+
 	public int getSpeciesStagnantTimeLimit()
 	{
 		return this.speciesStagnantTimeLimit;
+	}
+
+	public double getEnableMutationProb()
+	{
+		return this.enableMutationProb;
+	}
+
+	public double getDisableMutationProb()
+	{
+		return this.disableMutationProb;
+	}
+
+	public double getMutationWeightWholeProb()
+	{
+		return this.mutationWeightWholeProb;
 	}
 
 	public NEATInnovation aquireLinkInnovation(final int fromNode, final int toNode) // For a link mutation
@@ -226,5 +262,13 @@ public class NEATGenomeManager
 	public double getMutationWeightRange()
 	{
 		return mutationWeightRange;
+	}
+
+	/**
+	 * @return the mutationRemoveLinkProb
+	 */
+	public double getMutationRemoveLinkProb()
+	{
+		return mutationRemoveLinkProb;
 	}
 }

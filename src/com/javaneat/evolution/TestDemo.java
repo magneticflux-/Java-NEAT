@@ -169,7 +169,7 @@ public class TestDemo
 				}
 			}
 
-			double[] visionunwound = NESFitness.unwind2DArray(vision);
+			double[] visionunwound = unwind2DArray(vision);
 			double[] reactions = network.stepTime(visionunwound);
 
 			if (reactions[0] > 0) input.keyPressed(U);

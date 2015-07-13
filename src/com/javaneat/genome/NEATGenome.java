@@ -138,9 +138,9 @@ public class NEATGenome
 	public double getAdjustedScore()
 	{
 		if (this.species != null && this.species.getMembers().size() != 0)
-			return this.score / this.species.getMembers().size();
+			return this.getScore() / this.species.getMembers().size();
 		else
-			return this.score;
+			return this.getScore();
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class NEATGenome
 	 */
 	public double getScore()
 	{
-		return score;
+		return score >= 0 ? score : 0;
 	}
 
 	/**

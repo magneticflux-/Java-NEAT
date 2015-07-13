@@ -39,7 +39,7 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 	{
 		NEATGenome best;
 		NEATGenome notBest;
-		if (alpha.getScore() == beta.getScore())
+		if (alpha.getAdjustedScore() == beta.getAdjustedScore())
 		{
 			best = rng.nextBoolean() ? alpha : beta;
 			notBest = best == alpha ? beta : alpha;
@@ -176,8 +176,14 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 
 	public List<NEATGenome> apply(List<NEATGenome> selectedCandidates, Random rng)
 	{
-		@SuppressWarnings("unused")
 		List<NEATGenome> originalSelectedCandidates = Collections.unmodifiableList(new ArrayList<NEATGenome>(selectedCandidates)); // Preserve the originals
+
+		NEATGenome lowestFitness = null;
+		for (NEATGenome genome : originalSelectedCandidates)
+		{
+			if (lowestFitness == null || genome.getScore() < lowestFitness.getScore()) lowestFitness = genome;
+		}
+		System.out.println("Lowest score: " + lowestFitness.getScore());
 
 		for (Iterator<NEATSpecies> i = this.speciesList.iterator(); i.hasNext();) // Reset species and chose the closest to the leader in the next generation
 		{
@@ -253,7 +259,15 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 					NEATGenome mom = species.getMembers().get(rng.nextInt(species.getMembers().size())); // Get two random genomes from the species
 					NEATGenome dad = species.getMembers().get(rng.nextInt(species.getMembers().size()));
 
-					NEATGenome offspring = this.mate(mom, dad, rng);
+					NEATGenome offspring;
+					if (rng.nextDouble() < this.manager.getCrossoverChance())
+					{
+						offspring = this.mate(mom, dad, rng);
+					}
+					else
+					{
+						offspring = rng.nextBoolean() ? new NEATGenome(mom) : new NEATGenome(dad);
+					}
 
 					offspring = this.mutate(offspring, rng);
 					newCandidates.add(offspring);
@@ -302,13 +316,20 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 
 	public NEATGenome mutate(NEATGenome alpha, Random rng)
 	{
-		NEATGenome mutated = new NEATGenome(alpha);
+		NEATGenome mutated = alpha;
 
-		for (ConnectionGene gene : mutated.getConnectionGeneList()) // Perturb weights
+		if (rng.nextDouble() < this.manager.getMutationWeightWholeProb())
 		{
-			if (rng.nextDouble() < this.manager.getMutationWeightProb())
+			for (ConnectionGene gene : mutated.getConnectionGeneList()) // Perturb weights
 			{
-				gene.setWeight(gene.getWeight() + (rng.nextDouble() * 2 - 1) * this.manager.getMutationWeightRange());
+				if (rng.nextDouble() < this.manager.getMutationWeightProb())
+				{
+					gene.setWeight(gene.getWeight() + (rng.nextDouble() * 2 - 1) * this.manager.getMutationWeightRange());
+				}
+				else
+				{
+					gene.setWeight(rng.nextDouble() * 4 - 2);
+				}
 			}
 		}
 
@@ -352,6 +373,65 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 			mutated.getNeuronGeneList().add(insertedNeuron);
 			mutated.getConnectionGeneList().add(leftConnection);
 			mutated.getConnectionGeneList().add(rightConnection);
+		}
+
+		if (rng.nextDouble() < this.manager.getEnableMutationProb())
+		{
+			ArrayList<ConnectionGene> validGenes = new ArrayList<ConnectionGene>();
+			for (ConnectionGene gene : mutated.getConnectionGeneList())
+			{
+				if (!gene.getEnabled())
+				{
+					validGenes.add(gene);
+				}
+			}
+			if (validGenes.size() > 0) validGenes.get(rng.nextInt(validGenes.size())).setEnabled(true);
+		}
+
+		if (rng.nextDouble() < this.manager.getDisableMutationProb())
+		{
+			ArrayList<ConnectionGene> validGenes = new ArrayList<ConnectionGene>();
+			for (ConnectionGene gene : mutated.getConnectionGeneList())
+			{
+				if (gene.getEnabled())
+				{
+					validGenes.add(gene);
+				}
+			}
+			if (validGenes.size() > 0) validGenes.get(rng.nextInt(validGenes.size())).setEnabled(false);
+		}
+
+		if (mutated.getConnectionGeneList().size() > 5 && rng.nextDouble() < this.manager.getMutationRemoveLinkProb())
+		{
+			ConnectionGene removed = mutated.getConnectionGeneList().remove(rng.nextInt(mutated.getConnectionGeneList().size()));
+
+			boolean toNeuronOrphaned = true;
+			boolean fromNeuronOrphaned = true;
+			for (ConnectionGene gene : mutated.getConnectionGeneList())
+			{
+				if (toNeuronOrphaned && (gene.getToNode() == removed.getToNode() || gene.getFromNode() == removed.getToNode()))
+				{
+					toNeuronOrphaned = false;
+				}
+				if (fromNeuronOrphaned && (gene.getToNode() == removed.getFromNode() || gene.getFromNode() == removed.getFromNode()))
+				{
+					fromNeuronOrphaned = false;
+				}
+			}
+
+			NeuronGene gene = null;
+			for (Iterator<NeuronGene> i = mutated.getNeuronGeneList().iterator(); i.hasNext(); gene = i.next())
+			{
+				if (toNeuronOrphaned && gene.getNeuronID() == removed.getToNode())
+				{
+					i.remove();
+				}
+				else if (fromNeuronOrphaned && gene.getNeuronID() == removed.getFromNode())
+				{
+					i.remove();
+				}
+			}
+
 		}
 
 		mutated.sortGenes();

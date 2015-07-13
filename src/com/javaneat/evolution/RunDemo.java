@@ -50,7 +50,7 @@ public class RunDemo
 
 		final int numInputs = 169;
 		final int numOutputs = 6;
-		final int populationSize = 400;
+		final int populationSize = 300;
 		final double eliteFraction = 0.1;
 		final double disjointGeneCoefficient = 2;
 		final double excessGeneCoefficient = 2;
@@ -59,13 +59,18 @@ public class RunDemo
 		final int speciesStagnantTimeLimit = 500;
 		final double speciesCutoff = 5;
 		final double speciesCutoffDelta = 0.5;
-		final double mutationWeightProb = 0.85;
+		final double enableMutationProb = 0.2;
+		final double disableMutationProb = 0.4;
+		final double mutationWeightWholeProb = 0.25;
+		final double mutationWeightProb = 0.9;
 		final double mutationAddLinkProb = 0.3;
+		final double mutationRemoveLinkProb = 0.3;
 		final double mutationAddNodeProb = 0.3;
-		final double mutationWeightRange = 1;
+		final double mutationWeightRange = 0.1;
+		final double crossoverChance = 0.75;
 		NEATGenomeManager manager = new NEATGenomeManager(numInputs, numOutputs, disjointGeneCoefficient, excessGeneCoefficient, weightDifferenceCoefficient,
-				speciesTarget, speciesCutoff, speciesCutoffDelta, populationSize, speciesStagnantTimeLimit, mutationWeightProb, mutationAddLinkProb,
-				mutationAddNodeProb, mutationWeightRange);
+				speciesTarget, speciesCutoff, speciesCutoffDelta, populationSize, speciesStagnantTimeLimit, mutationWeightWholeProb, mutationWeightProb,
+				mutationAddLinkProb, mutationAddNodeProb, mutationWeightRange, enableMutationProb, disableMutationProb, crossoverChance, mutationRemoveLinkProb);
 
 		CandidateFactory<NEATGenome> candidateFactory = new NEATGenotypeFactory(manager);
 		EvolutionaryOperator<NEATGenome> evolutionScheme = new NEATEvolutionaryOperator(manager);
