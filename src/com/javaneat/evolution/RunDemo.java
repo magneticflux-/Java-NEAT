@@ -153,6 +153,7 @@ public class RunDemo {
 
 class NESFitness implements FitnessEvaluator<NEATGenome> {
     private ThreadLocal<NES> nes = new ThreadLocal<>();
+    private ThreadLocal<HeadlessUI> ui = new ThreadLocal<>();
 
     public static double[] unwind2DArray(int[][] arr) {
         double[] out = new double[arr.length * arr[0].length];
@@ -164,8 +165,6 @@ class NESFitness implements FitnessEvaluator<NEATGenome> {
             }
         return out;
     }
-
-    private ThreadLocal<HeadlessUI> ui = new ThreadLocal<>();
 
 
     @SuppressWarnings("MagicNumber")
@@ -205,6 +204,10 @@ class NESFitness implements FitnessEvaluator<NEATGenome> {
         ui.runFrame();
         controller1.releaseButton(PuppetController.Button.START);
 
+        for (int i = 0; i < 162; i++)
+            // Exact frame number until Mario gains control
+            ui.runFrame();
+
         int fitness;
         int maxDistance = 0;
         int timeout = 0;
@@ -212,7 +215,7 @@ class NESFitness implements FitnessEvaluator<NEATGenome> {
         while (true) {
             controller1.resetButtons();
 
-            cpuram = nes.getCPURAM();
+            cpuram = ui.getNESCPURAM();
 
             int score = 0;
             int time = 0;
