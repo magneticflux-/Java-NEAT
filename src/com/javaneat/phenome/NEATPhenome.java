@@ -1,94 +1,83 @@
 package com.javaneat.phenome;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import org.apache.commons.math3.util.FastMath;
-
 import com.javaneat.evolution.NEATGenomeManager;
 import com.javaneat.genome.ConnectionGene;
 import com.javaneat.genome.NEATGenome;
 import com.javaneat.genome.NeuronGene;
 
-public class NEATPhenome
-{
-	private NEATGenomeManager		manager;
-	private List<NEATConnection>	connectionList;
-	private double[]				preActivation;
-	private double[]				postActivation;
+import org.apache.commons.math3.util.FastMath;
 
-	public NEATPhenome(NEATGenome genome)
-	{
-		this.connectionList = new ArrayList<NEATConnection>(genome.getConnectionGeneList().size());
-		this.preActivation = new double[genome.getNeuronGeneList().size()];
-		this.postActivation = new double[genome.getNeuronGeneList().size()];
-		this.manager = genome.getManager();
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-		genome.sortGenes();
+public class NEATPhenome {
+    private NEATGenomeManager manager;
+    private List<NEATConnection> connectionList;
+    private double[] preActivation;
+    private double[] postActivation;
 
-		HashMap<Integer, Integer> neuronIDToArrayIndex = new HashMap<Integer, Integer>(genome.getNeuronGeneList().size());
-		for (NeuronGene gene : genome.getNeuronGeneList())
-		{
-			neuronIDToArrayIndex.put(gene.getNeuronID(), neuronIDToArrayIndex.size());
-		}
+    public NEATPhenome(NEATGenome genome) {
+        this.connectionList = new ArrayList<NEATConnection>(genome.getConnectionGeneList().size());
+        this.preActivation = new double[genome.getNeuronGeneList().size()];
+        this.postActivation = new double[genome.getNeuronGeneList().size()];
+        this.manager = genome.getManager();
 
-		for (ConnectionGene gene : genome.getConnectionGeneList())
-		{
-			if (gene.getEnabled())
-			{
-				NEATConnection connection = new NEATConnection(neuronIDToArrayIndex.get(gene.getToNode()), neuronIDToArrayIndex.get(gene.getFromNode()),
-						gene.getWeight());
-				this.connectionList.add(connection);
-			}
-		}
-	}
+        genome.sortGenes();
 
-	public void resetInternalState()
-	{
-		assert this.preActivation.length == this.postActivation.length : "Irregular neuron arrays. Malformed phenome.";
-		for (int i = 0; i < this.preActivation.length; i++)
-		{
-			this.preActivation[i] = 0;
-			this.postActivation[i] = 0;
-		}
-	}
+        HashMap<Integer, Integer> neuronIDToArrayIndex = new HashMap<Integer, Integer>(genome.getNeuronGeneList().size());
+        for (NeuronGene gene : genome.getNeuronGeneList()) {
+            neuronIDToArrayIndex.put(gene.getNeuronID(), neuronIDToArrayIndex.size());
+        }
 
-	public double[] stepTime(double[] inputs, int numActivations)
-	{
-		for (int i = 0; i < numActivations - 1; i++)
-		{
-			this.stepTime(inputs);
-		}
-		return this.stepTime(inputs);
-	}
+        for (ConnectionGene gene : genome.getConnectionGeneList()) {
+            if (gene.getEnabled()) {
+                NEATConnection connection = new NEATConnection(neuronIDToArrayIndex.get(gene.getToNode()), neuronIDToArrayIndex.get(gene.getFromNode()),
+                        gene.getWeight());
+                this.connectionList.add(connection);
+            }
+        }
+    }
 
-	public static double activationFunction(double x)
-	{
-		return FastMath.tanh(x);
-	}
+    public void resetInternalState() {
+        assert this.preActivation.length == this.postActivation.length : "Irregular neuron arrays. Malformed phenome.";
+        for (int i = 0; i < this.preActivation.length; i++) {
+            this.preActivation[i] = 0;
+            this.postActivation[i] = 0;
+        }
+    }
 
-	public double[] stepTime(double[] inputs)
-	{
-		if (inputs.length != this.manager.getNumInputs()) throw new IllegalArgumentException("Input length not correct.");
+    public double[] stepTime(double[] inputs, int numActivations) {
+        for (int i = 0; i < numActivations - 1; i++) {
+            this.stepTime(inputs);
+        }
+        return this.stepTime(inputs);
+    }
 
-		this.postActivation[0] = 1;
-		System.arraycopy(inputs, 0, this.postActivation, this.manager.getInputOffset(), this.manager.getNumInputs()); // Setting bias and inputs
+    public double[] stepTime(double[] inputs) {
+        if (inputs.length != this.manager.getNumInputs())
+            throw new IllegalArgumentException("Input length not correct.");
 
-		for (NEATConnection connection : this.connectionList) // Adding up all connections
-		{
-			this.preActivation[connection.getToIndex()] += this.postActivation[connection.getFromIndex()] * connection.getWeight();
-		}
+        this.postActivation[0] = 1;
+        System.arraycopy(inputs, 0, this.postActivation, this.manager.getInputOffset(), this.manager.getNumInputs()); // Setting bias and inputs
 
-		for (int i = 0; i < this.preActivation.length; i++)
-		{
-			this.postActivation[i] = NEATPhenome.activationFunction(this.preActivation[i]);
-			this.preActivation[i] = 0;
-		}
+        for (NEATConnection connection : this.connectionList) // Adding up all connections
+        {
+            this.preActivation[connection.getToIndex()] += this.postActivation[connection.getFromIndex()] * connection.getWeight();
+        }
 
-		double[] output = new double[this.manager.getNumOutputs()];
-		System.arraycopy(this.postActivation, this.manager.getOutputOffset(), output, 0, this.manager.getNumOutputs()); // Getting outputs
+        for (int i = 0; i < this.preActivation.length; i++) {
+            this.postActivation[i] = NEATPhenome.activationFunction(this.preActivation[i]);
+            this.preActivation[i] = 0;
+        }
 
-		return output;
-	}
+        double[] output = new double[this.manager.getNumOutputs()];
+        System.arraycopy(this.postActivation, this.manager.getOutputOffset(), output, 0, this.manager.getNumOutputs()); // Getting outputs
+
+        return output;
+    }
+
+    public static double activationFunction(double x) {
+        return FastMath.tanh(x);
+    }
 }

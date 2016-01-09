@@ -10,20 +10,32 @@ import com.grapeshot.halfnes.ui.PuppetController;
 import com.javaneat.genome.ConnectionGene;
 import com.javaneat.genome.NEATGenome;
 import com.javaneat.phenome.NEATPhenome;
+
 import org.apache.commons.math3.util.FastMath;
 import org.uncommons.maths.random.Probability;
-import org.uncommons.watchmaker.framework.*;
+import org.uncommons.watchmaker.framework.CandidateFactory;
+import org.uncommons.watchmaker.framework.EvolutionObserver;
+import org.uncommons.watchmaker.framework.EvolutionaryOperator;
+import org.uncommons.watchmaker.framework.FitnessEvaluator;
+import org.uncommons.watchmaker.framework.GenerationalEvolutionEngine;
+import org.uncommons.watchmaker.framework.PopulationData;
+import org.uncommons.watchmaker.framework.SelectionStrategy;
 import org.uncommons.watchmaker.framework.selection.TournamentSelection;
 import org.uncommons.watchmaker.framework.termination.UserAbort;
 import org.uncommons.watchmaker.swing.ObjectSwingRenderer;
 import org.uncommons.watchmaker.swing.evolutionmonitor.EvolutionMonitor;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Random;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 public class RunDemo {
     public static void main(String[] args) throws FileNotFoundException, InterruptedException {
