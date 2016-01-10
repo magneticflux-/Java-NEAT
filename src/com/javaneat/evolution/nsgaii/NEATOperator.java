@@ -1,7 +1,6 @@
 package com.javaneat.evolution.nsgaii;
 
 import com.javaneat.genome.NEATGenome;
-
 import org.skaggs.ec.multiobjective.population.FrontedPopulation;
 import org.skaggs.ec.operators.Operator;
 import org.skaggs.ec.population.Population;
