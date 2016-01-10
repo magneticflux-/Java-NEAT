@@ -54,11 +54,7 @@ public class ConnectionGene implements Comparable<ConnectionGene> {
     }
 
     public boolean equals(Object o) {
-        if (o instanceof ConnectionGene) {
-            return this.innovationID == ((ConnectionGene) o).innovationID;
-        } else {
-            return false;
-        }
+        return o instanceof ConnectionGene && this.innovationID == ((ConnectionGene) o).innovationID;
     }
 
     public String toString() {

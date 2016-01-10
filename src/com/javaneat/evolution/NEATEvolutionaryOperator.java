@@ -1,20 +1,9 @@
 package com.javaneat.evolution;
 
-import com.javaneat.genome.ConnectionGene;
-import com.javaneat.genome.NEATGenome;
-import com.javaneat.genome.NEATSpecies;
-import com.javaneat.genome.NeuronGene;
-import com.javaneat.genome.NeuronType;
-
+import com.javaneat.genome.*;
 import org.uncommons.watchmaker.framework.EvolutionaryOperator;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 @Deprecated
 public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome> {
@@ -23,11 +12,11 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 
     public NEATEvolutionaryOperator(NEATGenomeManager manager) {
         this.manager = manager;
-        this.speciesList = new ArrayList<NEATSpecies>(manager.getSpeciesTarget());
+        this.speciesList = new ArrayList<>(manager.getSpeciesTarget());
     }
 
     public List<NEATGenome> apply(List<NEATGenome> selectedCandidates, Random rng) {
-        List<NEATGenome> originalSelectedCandidates = Collections.unmodifiableList(new ArrayList<NEATGenome>(selectedCandidates)); // Preserve the originals
+        List<NEATGenome> originalSelectedCandidates = Collections.unmodifiableList(new ArrayList<>(selectedCandidates)); // Preserve the originals
 
         NEATGenome lowestFitness = null;
         for (NEATGenome genome : originalSelectedCandidates) {
@@ -77,7 +66,7 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
 
         this.manager.tweakSpeciesCutoff(this.speciesList.size() > this.manager.getSpeciesTarget()); // Adjust the number of species to the target
 
-        List<NEATGenome> newCandidates = new ArrayList<NEATGenome>(selectedCandidates.size()); // The list of modified candidates to be output
+        List<NEATGenome> newCandidates = new ArrayList<>(selectedCandidates.size()); // The list of modified candidates to be output
 
         double totalAverageFitness = 0;
         int numBreedingSpecies = 0;
@@ -164,9 +153,9 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
         int alphaGeneIndex = 0;
         int betaGeneIndex = 0;
 
-        List<ConnectionGene> offspringConnectionGenes = new ArrayList<ConnectionGene>();
-        List<NeuronGene> offspringNeuronGenes = new ArrayList<NeuronGene>();
-        Set<Integer> addedNeuronIDs = new HashSet<Integer>();
+        List<ConnectionGene> offspringConnectionGenes = new ArrayList<>();
+        List<NeuronGene> offspringNeuronGenes = new ArrayList<>();
+        Set<Integer> addedNeuronIDs = new HashSet<>();
 
         for (int i = 0; i < 1 + this.manager.getNumInputs() + this.manager.getNumOutputs(); i++) // Acquire required neurons
         {
@@ -278,7 +267,7 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
             while (this.linkAlreadyExists(mutated, neuronFrom, neuronTo) && (tries++ < 10));
 
             if (!this.linkAlreadyExists(mutated, neuronFrom, neuronTo)) {
-                ConnectionGene gene = new ConnectionGene(neuronFrom, neuronTo, this.manager.aquireLinkInnovation(neuronFrom, neuronTo).getInnovationID(),
+                ConnectionGene gene = new ConnectionGene(neuronFrom, neuronTo, this.manager.acquireLinkInnovation(neuronFrom, neuronTo).getInnovationID(),
                         (rng.nextDouble() * 2 - 1) * this.manager.getMutationWeightRange(), true);
                 mutated.getConnectionGeneList().add(gene);
             }
@@ -292,11 +281,11 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
             replaced.setEnabled(false); // Disable it
 
             int neuronID = this.manager.getNewNeuronID();
-            NeuronGene insertedNeuron = new NeuronGene(neuronID, this.manager.aquireSplitInnovation(replaced.getFromNode(), replaced.getToNode())
+            NeuronGene insertedNeuron = new NeuronGene(neuronID, this.manager.acquireSplitInnovation(replaced.getFromNode(), replaced.getToNode())
                     .getInnovationID(), NeuronType.HIDDEN);
-            ConnectionGene leftConnection = new ConnectionGene(replaced.getFromNode(), neuronID, this.manager.aquireLinkInnovation(replaced.getFromNode(),
+            ConnectionGene leftConnection = new ConnectionGene(replaced.getFromNode(), neuronID, this.manager.acquireLinkInnovation(replaced.getFromNode(),
                     neuronID).getInnovationID(), (rng.nextDouble() * 2 - 1) * this.manager.getMutationWeightRange(), true);
-            ConnectionGene rightConnection = new ConnectionGene(neuronID, replaced.getToNode(), this.manager.aquireLinkInnovation(neuronID,
+            ConnectionGene rightConnection = new ConnectionGene(neuronID, replaced.getToNode(), this.manager.acquireLinkInnovation(neuronID,
                     replaced.getToNode()).getInnovationID(), (rng.nextDouble() * 2 - 1) * this.manager.getMutationWeightRange(), true);
 
             mutated.getNeuronGeneList().add(insertedNeuron);
@@ -305,7 +294,7 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
         }
 
         if (rng.nextDouble() < this.manager.getEnableMutationProb()) {
-            ArrayList<ConnectionGene> validGenes = new ArrayList<ConnectionGene>();
+            ArrayList<ConnectionGene> validGenes = new ArrayList<>();
             for (ConnectionGene gene : mutated.getConnectionGeneList()) {
                 if (!gene.getEnabled()) {
                     validGenes.add(gene);
@@ -316,7 +305,7 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
         }
 
         if (rng.nextDouble() < this.manager.getDisableMutationProb()) {
-            ArrayList<ConnectionGene> validGenes = new ArrayList<ConnectionGene>();
+            ArrayList<ConnectionGene> validGenes = new ArrayList<>();
             for (ConnectionGene gene : mutated.getConnectionGeneList()) {
                 if (gene.getEnabled()) {
                     validGenes.add(gene);

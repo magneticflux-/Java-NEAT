@@ -19,8 +19,8 @@ public class NEATGenome
     @SuppressWarnings("unused")
     private NEATGenome() // This is to serialize properly
     {
-        this.connectionGeneList = new ArrayList<ConnectionGene>();
-        this.neuronGeneList = new ArrayList<NeuronGene>();
+        this.connectionGeneList = new ArrayList<>();
+        this.neuronGeneList = new ArrayList<>();
         this.manager = null;
     }
 
@@ -30,8 +30,8 @@ public class NEATGenome
 
     public NEATGenome(final List<ConnectionGene> connections, final List<NeuronGene> neurons, final NEATGenomeManager manager) {
         this.manager = manager;
-        this.connectionGeneList = new ArrayList<ConnectionGene>(connections.size());
-        this.neuronGeneList = new ArrayList<NeuronGene>(neurons.size());
+        this.connectionGeneList = new ArrayList<>(connections.size());
+        this.neuronGeneList = new ArrayList<>(neurons.size());
         for (final ConnectionGene gene : connections)
             this.connectionGeneList.add(new ConnectionGene(gene));
         for (final NeuronGene gene : neurons) {
@@ -46,8 +46,8 @@ public class NEATGenome
 
     public NEATGenome(final Random rng, final NEATGenomeManager manager) {
         this.manager = manager;
-        this.connectionGeneList = new ArrayList<ConnectionGene>(1);
-        this.neuronGeneList = new ArrayList<NeuronGene>(this.manager.getNumInputs() + this.manager.getNumOutputs() + 1);
+        this.connectionGeneList = new ArrayList<>(1);
+        this.neuronGeneList = new ArrayList<>(this.manager.getNumInputs() + this.manager.getNumOutputs() + 1);
 
         this.addInitialNodes();
         this.addRandomFirstLink(rng);
@@ -55,20 +55,20 @@ public class NEATGenome
     }
 
     private void addInitialNodes() {
-        this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.aquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(),
+        this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(),
                 NeuronType.BIAS));
         for (int i = 0; i < this.manager.getNumInputs(); i++)
-            this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.aquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(),
+            this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(),
                     NeuronType.INPUT));
         for (int i = 0; i < this.manager.getNumOutputs(); i++)
-            this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.aquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(),
+            this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(),
                     NeuronType.OUTPUT));
     }
 
     private void addRandomFirstLink(final Random rng) {
         final int inputIndex = rng.nextInt(this.manager.getNumInputs() + 1); // Bias + Inputs considered
         final int outputIndex = rng.nextInt(this.manager.getNumOutputs()) + this.manager.getOutputOffset(); // Only Outputs considered
-        final NEATInnovation link = this.manager.aquireLinkInnovation(inputIndex, outputIndex);
+        final NEATInnovation link = this.manager.acquireLinkInnovation(inputIndex, outputIndex);
         this.connectionGeneList.add(new ConnectionGene(inputIndex, outputIndex, link.getInnovationID(), 1, true));
     }
 

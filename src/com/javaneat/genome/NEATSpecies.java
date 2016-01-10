@@ -1,7 +1,6 @@
 package com.javaneat.genome;
 
 import com.javaneat.evolution.NEATGenomeManager;
-
 import org.apache.commons.math3.util.FastMath;
 
 import java.util.ArrayList;
@@ -10,7 +9,7 @@ import java.util.List;
 public class NEATSpecies {
     NEATGenome leader;
     NEATGenomeManager manager;
-    List<NEATGenome> members = new ArrayList<NEATGenome>();
+    List<NEATGenome> members = new ArrayList<>();
     private double maxAverageFitness = 0;
     private int timesSinceLastImprovement = 0;
 

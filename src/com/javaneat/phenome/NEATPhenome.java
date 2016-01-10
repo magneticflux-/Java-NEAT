@@ -4,7 +4,6 @@ import com.javaneat.evolution.NEATGenomeManager;
 import com.javaneat.genome.ConnectionGene;
 import com.javaneat.genome.NEATGenome;
 import com.javaneat.genome.NeuronGene;
-
 import org.apache.commons.math3.util.FastMath;
 
 import java.util.ArrayList;
@@ -18,14 +17,14 @@ public class NEATPhenome {
     private double[] postActivation;
 
     public NEATPhenome(NEATGenome genome) {
-        this.connectionList = new ArrayList<NEATConnection>(genome.getConnectionGeneList().size());
+        this.connectionList = new ArrayList<>(genome.getConnectionGeneList().size());
         this.preActivation = new double[genome.getNeuronGeneList().size()];
         this.postActivation = new double[genome.getNeuronGeneList().size()];
         this.manager = genome.getManager();
 
         genome.sortGenes();
 
-        HashMap<Integer, Integer> neuronIDToArrayIndex = new HashMap<Integer, Integer>(genome.getNeuronGeneList().size());
+        HashMap<Integer, Integer> neuronIDToArrayIndex = new HashMap<>(genome.getNeuronGeneList().size());
         for (NeuronGene gene : genome.getNeuronGeneList()) {
             neuronIDToArrayIndex.put(gene.getNeuronID(), neuronIDToArrayIndex.size());
         }
@@ -37,6 +36,10 @@ public class NEATPhenome {
                 this.connectionList.add(connection);
             }
         }
+    }
+
+    public static double activationFunction(double x) {
+        return FastMath.tanh(x);
     }
 
     public void resetInternalState() {
@@ -75,9 +78,5 @@ public class NEATPhenome {
         System.arraycopy(this.postActivation, this.manager.getOutputOffset(), output, 0, this.manager.getNumOutputs()); // Getting outputs
 
         return output;
-    }
-
-    public static double activationFunction(double x) {
-        return FastMath.tanh(x);
     }
 }
