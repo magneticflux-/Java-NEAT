@@ -57,29 +57,29 @@ public class RunDemo {
 
         CandidateFactory<NEATGenome> candidateFactory = new NEATGenotypeFactory(manager);
         EvolutionaryOperator<NEATGenome> evolutionScheme = new NEATEvolutionaryOperator(manager);
-        FitnessEvaluator<NEATGenome> fitnessEvaluator = new FitnessEvaluator<NEATGenome>() {
-            public double getFitness(NEATGenome candidate, List<? extends NEATGenome> population) {
-                double error = 0;
-
-                NEATPhenome network = new NEATPhenome(candidate);
-
-                error += FastMath.abs(0 - network.stepTime(new double[]{0, 0}, 4)[0]);
-                error += FastMath.abs(1 - network.stepTime(new double[]{0, 1}, 4)[0]);
-                error += FastMath.abs(1 - network.stepTime(new double[]{1, 0}, 4)[0]);
-                error += FastMath.abs(0 - network.stepTime(new double[]{1, 1}, 4)[0]);
-
-                candidate.setScore(1 / (1 + error + candidate.getConnectionGeneList().size()));
-                return candidate.getAdjustedScore();
-            }
-
-            public boolean isNatural() {
-                return true;
-            }
-        };
-
+        FitnessEvaluator<NEATGenome> fitnessEvaluator;
+        //fitnessEvaluator = new FitnessEvaluator<NEATGenome>() {
+        //    public double getFitness(NEATGenome candidate, List<? extends NEATGenome> population) {
+        //        double error = 0;
+        //
+        //        NEATPhenome network = new NEATPhenome(candidate);
+        //
+        //        error += FastMath.abs(0 - network.stepTime(new double[]{0, 0}, 4)[0]);
+        //        error += FastMath.abs(1 - network.stepTime(new double[]{0, 1}, 4)[0]);
+        //        error += FastMath.abs(1 - network.stepTime(new double[]{1, 0}, 4)[0]);
+        //        error += FastMath.abs(0 - network.stepTime(new double[]{1, 1}, 4)[0]);
+        //
+        //        candidate.setScore(1 / (1 + error + candidate.getConnectionGeneList().size()));
+        //        return candidate.getAdjustedScore();
+        //    }
+        //
+        //    public boolean isNatural() {
+        //        return true;
+        //    }
+        //};
         fitnessEvaluator = new NESFitness();
 
-        GenerationalEvolutionEngine<NEATGenome> ge = new GenerationalEvolutionEngine<>(candidateFactory, evolutionScheme, fitnessEvaluator,
+        EvolutionEngine<NEATGenome> ge = new GenerationalEvolutionEngine<>(candidateFactory, evolutionScheme, fitnessEvaluator,
                 selectionStrategy, rng);
         ge.addEvolutionObserver(new EvolutionObserver<NEATGenome>() {
             private long startTime = System.nanoTime();
@@ -107,7 +107,7 @@ public class RunDemo {
         final UserAbort abort = new UserAbort();
         final EvolutionMonitor<NEATGenome> monitor = new EvolutionMonitor<>(new ObjectSwingRenderer(), false);
         synchronized (monitor.getGUIComponent().getTreeLock()) {
-            ((JTabbedPane) monitor.getGUIComponent().getComponents()[0]).add(new JPanel() {
+            ((Container) monitor.getGUIComponent().getComponents()[0]).add(new JPanel() {
                 private static final long serialVersionUID = 1L;
 
                 {

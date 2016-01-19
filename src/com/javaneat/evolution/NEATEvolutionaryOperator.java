@@ -7,8 +7,8 @@ import java.util.*;
 
 @Deprecated
 public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome> {
-    private NEATGenomeManager manager;
-    private List<NEATSpecies> speciesList;
+    private final NEATGenomeManager manager;
+    private final List<NEATSpecies> speciesList;
 
     public NEATEvolutionaryOperator(NEATGenomeManager manager) {
         this.manager = manager;
@@ -54,7 +54,8 @@ public class NEATEvolutionaryOperator implements EvolutionaryOperator<NEATGenome
         {
             boolean added = false;
             for (NEATSpecies species : this.speciesList) {
-                if (added = species.attemptAddMember(genome)) {
+                added = species.attemptAddMember(genome);
+                if (added) {
                     break;
                 }
             }
