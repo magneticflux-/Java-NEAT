@@ -5,6 +5,7 @@ import org.skaggs.ec.properties.Key;
 /**
  * Created by Mitchell on 1/18/2016.
  */
-public enum IntKey implements Key {
-    INPUT_COUNT, OUTPUT_COUNT
+public enum NEATIntKey implements Key.IntKey {
+    INPUT_COUNT, OUTPUT_COUNT,
+    INITIAL_LINK_COUNT
 }

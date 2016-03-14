@@ -18,6 +18,6 @@ public class NEATOperator implements Operator<NEATGenome> {
 
     @Override
     public Key[] requestProperties() {
-        return new Key[]{Key.DoubleKey.INITIAL_MUTATION_PROBABILITY};
+        return new Key[]{Key.DoubleKey.DefaultDoubleKey.INITIAL_MUTATION_PROBABILITY};
     }
 }
