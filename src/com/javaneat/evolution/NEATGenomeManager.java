@@ -138,27 +138,27 @@ public class NEATGenomeManager {
     }
 
     @Deprecated
-    private double getCrossoverChance() {
+    double getCrossoverChance() {
         return this.crossoverChance;
     }
 
     @Deprecated
-    private int getSpeciesStagnantTimeLimit() {
+    int getSpeciesStagnantTimeLimit() {
         return this.speciesStagnantTimeLimit;
     }
 
     @Deprecated
-    private double getEnableMutationProb() {
+    double getEnableMutationProb() {
         return this.enableMutationProb;
     }
 
     @Deprecated
-    private double getDisableMutationProb() {
+    double getDisableMutationProb() {
         return this.disableMutationProb;
     }
 
     @Deprecated
-    private double getMutationWeightWholeProb() {
+    double getMutationWeightWholeProb() {
         return this.mutationWeightWholeProb;
     }
 
