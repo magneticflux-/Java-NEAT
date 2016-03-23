@@ -1,15 +1,18 @@
 package com.javaneat.genome;
 
-public class ConnectionGene implements Comparable<ConnectionGene> {
-    private int innovationID;
-    private int fromNode;
-    private int toNode;
+public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable {
+    private final int innovationID;
+    private final int fromNode;
+    private final int toNode;
     private double weight;
     private boolean enabled;
 
     @SuppressWarnings("unused")
     private ConnectionGene() // This is to serialize properly
     {
+        fromNode = -1;
+        toNode = -1;
+        innovationID = -1;
     }
 
     public ConnectionGene(ConnectionGene other) {
@@ -53,16 +56,35 @@ public class ConnectionGene implements Comparable<ConnectionGene> {
         return this.toNode;
     }
 
+    @Override
     public boolean equals(Object o) {
-        return o instanceof ConnectionGene && this.innovationID == ((ConnectionGene) o).innovationID;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ConnectionGene that = (ConnectionGene) o;
+
+        return innovationID == that.innovationID;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return innovationID;
     }
 
     public String toString() {
-        return "ConnectionGene=[FromNode:" + this.fromNode + ",ToNode:" + this.toNode + ",Weight:" + this.weight + ",Enabled:" + this.enabled
-                + ",InnovationID:" + this.innovationID + "]";
+        return "ConnectionGene=[FromNode:" + this.fromNode + ",ToNode:" + this.toNode + ",Weight:" + this.weight + ",Enabled:" + this.enabled + ",InnovationID:" + this.innovationID + "]";
     }
 
     public int compareTo(ConnectionGene o) {
-        return this.innovationID - o.innovationID;
+        return Integer.compare(this.innovationID, o.innovationID);
+    }
+
+    public ConnectionGene clone() {
+        try {
+            return (ConnectionGene) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

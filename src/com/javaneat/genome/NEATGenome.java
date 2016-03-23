@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class NEATGenome
+public class NEATGenome implements Cloneable
 // Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
 {
     private final List<ConnectionGene> connectionGeneList;
@@ -135,5 +135,9 @@ public class NEATGenome
      */
     public void setScore(double score) {
         this.score = score;
+    }
+
+    public NEATGenome clone() throws CloneNotSupportedException {
+        return (NEATGenome) super.clone();
     }
 }

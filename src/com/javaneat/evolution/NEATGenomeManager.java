@@ -49,8 +49,7 @@ public class NEATGenomeManager {
     private int globalNeuronID = 0;
     private double speciesCutoff;
 
-    @SuppressWarnings("unused")
-    private NEATGenomeManager() // This is to serialize properly
+    public NEATGenomeManager() // This is to serialize properly
     {
         this.numInputs = 0;
         this.numOutputs = 0;
@@ -72,11 +71,8 @@ public class NEATGenomeManager {
         this.mutationRemoveLinkProb = 0;
     }
 
-    public NEATGenomeManager(final int numInputs, final int numOutputs, final double disjointGeneCoefficient, final double excessGeneCoefficient,
-                             final double weightDifferenceCoefficient, final int speciesTarget, final double speciesCutoff, final double speciesCutoffDelta,
-                             final int populationSize, final int speciesStagnantTimeLimit, final double mutationWeightWholeProb, final double mutationWeightProb,
-                             final double mutationAddLinkProb, final double mutationAddNodeProb, final double mutationWeightRange, final double enableMutationProb,
-                             final double disableMutationProb, final double crossoverChance, final double mutationRemoveLinkProb) {
+    @Deprecated
+    public NEATGenomeManager(final int numInputs, final int numOutputs, final double disjointGeneCoefficient, final double excessGeneCoefficient, final double weightDifferenceCoefficient, final int speciesTarget, final double speciesCutoff, final double speciesCutoffDelta, final int populationSize, final int speciesStagnantTimeLimit, final double mutationWeightWholeProb, final double mutationWeightProb, final double mutationAddLinkProb, final double mutationAddNodeProb, final double mutationWeightRange, final double enableMutationProb, final double disableMutationProb, final double crossoverChance, final double mutationRemoveLinkProb) {
         this.numInputs = numInputs;
         this.numOutputs = numOutputs;
         this.disjointGeneCoefficient = disjointGeneCoefficient;

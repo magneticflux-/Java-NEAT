@@ -5,6 +5,7 @@ import com.javaneat.genome.NEATGenome;
 import org.apache.commons.math3.util.FastMath;
 import org.skaggs.ec.operators.Speciator;
 import org.skaggs.ec.population.individual.Individual;
+import org.skaggs.ec.properties.AspectUser;
 import org.skaggs.ec.properties.Key;
 import org.skaggs.ec.properties.Properties;
 import org.skaggs.ec.util.Utils;
@@ -24,12 +25,8 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
     }
 
     @Override
-    public void modifyAspects(Individual<NEATGenome> individual, Random r) {
-    }
-
-    @Override
     public String[] getAspectDescriptions() {
-        return new String[]{"Disjoint Gene Coefficient", "Excess Gene Coefficient"};
+        return new String[]{"Max Mating Distance", "Disjoint Gene Coefficient", "Excess Gene Coefficient"};
     }
 
     @Override
@@ -39,12 +36,20 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
 
     @Override
     public void updateProperties(Properties properties) {
-
     }
 
     @Override
     protected double getDistance(Individual<NEATGenome> individual, Individual<NEATGenome> individual2) {
         return getGenomeDistance(individual, individual2);
+    }
+
+    @Override
+    public void modifyAspects(Individual<NEATGenome> individual, Random r) {
+        double[] aspects = individual.aspects;
+
+        AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex, r, 0, Double.POSITIVE_INFINITY);
+        AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 1, r, 0, Double.POSITIVE_INFINITY);
+        AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 2, r, 0, Double.POSITIVE_INFINITY);
     }
 
     private double getGenomeDistance(Individual<NEATGenome> individual, Individual<NEATGenome> individual2) {

@@ -20,13 +20,16 @@ public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> 
 
     private final Source source;
     private final NEATGenomeManager genomeManager;
+    private final Collection<NEATGenome> seed;
 
     public NEATPopulationGenerator(NEATGenomeManager genomeManager) {
         this.source = Source.RANDOM;
         this.genomeManager = genomeManager;
+        this.seed = new ArrayList<>();
     }
 
     public NEATPopulationGenerator(NEATGenomeManager genomeManager, Collection<NEATGenome> seed) {
+        this.seed = new ArrayList<>(seed);
         this.source = Source.SEEDED;
         this.genomeManager = genomeManager;
     }
