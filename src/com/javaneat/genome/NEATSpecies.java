@@ -6,6 +6,7 @@ import org.apache.commons.math3.util.FastMath;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class NEATSpecies {
     NEATGenome leader;
     NEATGenomeManager manager;
