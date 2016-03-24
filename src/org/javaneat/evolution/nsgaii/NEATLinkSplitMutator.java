@@ -12,8 +12,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NEATLinkSplitMutator extends Mutator<NEATGenome> {
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
-        Random rng = ThreadLocalRandom.current();
-        ConnectionGene replaced = object.getConnectionGeneList().get(rng.nextInt(object.getConnectionGeneList().size()));
+        Random r = ThreadLocalRandom.current();
+        ConnectionGene replaced = object.getConnectionGeneList().get(r.nextInt(object.getConnectionGeneList().size()));
         // Get a random connection to replace
 
         replaced.setEnabled(false); // Disable it

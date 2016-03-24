@@ -4,10 +4,7 @@ import org.javaneat.evolution.NEATGenomeManager;
 import org.javaneat.genome.NEATGenome;
 import org.jnsgaii.examples.defaultoperatorframework.RouletteWheelLinearSelection;
 import org.jnsgaii.multiobjective.NSGA_II;
-import org.jnsgaii.operators.DefaultOperator;
-import org.jnsgaii.operators.Mutator;
-import org.jnsgaii.operators.Operator;
-import org.jnsgaii.operators.Selector;
+import org.jnsgaii.operators.*;
 import org.jnsgaii.properties.Key;
 import org.jnsgaii.properties.Properties;
 
@@ -30,9 +27,10 @@ public final class Run {
         NEATPopulationGenerator neatPopulationGenerator = new NEATPopulationGenerator(neatGenomeManager);
 
         NEATSpeciator neatSpeciator = new NEATSpeciator();
-        List<Mutator<NEATGenome>> mutators = Arrays.asList(new NEATWeightMutator(), new NEATLinkAdditionMutator());
+        List<Mutator<NEATGenome>> mutators = Arrays.asList(new NEATWeightMutator(), new NEATLinkAdditionMutator(), new NEATLinkRemovalMutator(), new NEATLinkSplitMutator(), new NEATEnableGeneMutator(), new NEATDisableGeneMutator());
+        Recombiner<NEATGenome> recombiner = null;
         Selector<NEATGenome> selector = new RouletteWheelLinearSelection<>();
-        Operator<NEATGenome> operator = new DefaultOperator<>(mutators, null, selector, neatSpeciator);
+        Operator<NEATGenome> operator = new DefaultOperator<>(mutators, recombiner, selector, neatSpeciator);
 
         NSGA_II<NEATGenome> nsga_ii = new NSGA_II<>(properties, operator, null, neatPopulationGenerator);
     }

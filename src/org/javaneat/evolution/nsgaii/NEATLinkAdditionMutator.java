@@ -14,25 +14,30 @@ import java.util.stream.Collectors;
  * Created by Mitchell on 3/24/2016.
  */
 public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
+    @SuppressWarnings("AssignmentToMethodParameter")
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
+        while (ThreadLocalRandom.current().nextDouble(0) <= mutationStrength) {
+            mutationStrength--; // If strength is 1.5, 100% chance to remove first time, 50% second, 0% final check.
         List<PossibleLink> possibleLinks = new ArrayList<>();
-
+            // WARNING: ***Lambda singularity approaching***
         object.getNeuronGeneList().stream().forEach( // For every neuron
-                fromNode -> possibleLinks.addAll(
+                fromNode -> possibleLinks.addAll( // Add all of the possible links that are...
                         object.getNeuronGeneList().parallelStream().filter(
-                                toNode -> toNode.getNeuronType() == NeuronType.HIDDEN || toNode.getNeuronType() == NeuronType.OUTPUT).filter( // For each hidden or output neuron
+                                toNode -> toNode.getNeuronType() == NeuronType.HIDDEN || toNode.getNeuronType() == NeuronType.OUTPUT).filter( // From a hidden or output neuron
                                 toNode -> object.getConnectionGeneList().parallelStream().noneMatch(
-                                        connectionGene -> connectionGene.getFromNode() == fromNode.getNeuronID() && connectionGene.getToNode() == toNode.getNeuronID())).map( // That no connectionGenes already inhabit
-                                toNode -> new PossibleLink(fromNode.getNeuronID(), toNode.getNeuronID())).collect(Collectors.toList()))); // Add collect them into a set and add them all
+                                        connectionGene -> connectionGene.getFromNode() == fromNode.getNeuronID() && connectionGene.getToNode() == toNode.getNeuronID())).map( // And no connectionGenes already link
+                                toNode -> new PossibleLink(fromNode.getNeuronID(), toNode.getNeuronID())).collect(Collectors.toList()))); // Add them to a small list and add them all to the list
 
-        PossibleLink chosenLink = possibleLinks.get(ThreadLocalRandom.current().nextInt(possibleLinks.size()));
+            if (possibleLinks.size() > 0) {
+                PossibleLink chosenLink = possibleLinks.get(ThreadLocalRandom.current().nextInt(possibleLinks.size()));
 
-        ConnectionGene gene = new ConnectionGene(chosenLink.fromNode, chosenLink.toNode, object.getManager().acquireLinkInnovation(chosenLink.fromNode, chosenLink.toNode).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
+                ConnectionGene gene = new ConnectionGene(chosenLink.fromNode, chosenLink.toNode, object.getManager().acquireLinkInnovation(chosenLink.fromNode, chosenLink.toNode).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
 
-        object.getConnectionGeneList().add(gene);
-
-        return null;
+                object.getConnectionGeneList().add(gene);
+            }
+        }
+        return object;
     }
 
     @Override
