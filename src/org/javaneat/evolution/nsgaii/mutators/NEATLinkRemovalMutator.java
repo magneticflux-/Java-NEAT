@@ -1,4 +1,4 @@
-package org.javaneat.evolution.nsgaii;
+package org.javaneat.evolution.nsgaii.mutators;
 
 import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
@@ -30,6 +30,8 @@ public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
                 object.getNeuronGeneList().removeIf(neuronGene -> (finalToNeuronOrphaned && neuronGene.getNeuronID() == removed.getToNode()) || (finalFromNeuronOrphaned && neuronGene.getNeuronID() == removed.getFromNode()));
             }
         }
+
+        object.sortGenes();
         return object;
     }
 

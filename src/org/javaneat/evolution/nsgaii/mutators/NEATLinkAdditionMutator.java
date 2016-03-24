@@ -1,4 +1,4 @@
-package org.javaneat.evolution.nsgaii;
+package org.javaneat.evolution.nsgaii.mutators;
 
 import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
@@ -37,6 +37,8 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
                 object.getConnectionGeneList().add(gene);
             }
         }
+
+        object.sortGenes();
         return object;
     }
 

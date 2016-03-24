@@ -1,4 +1,4 @@
-package org.javaneat.evolution.nsgaii;
+package org.javaneat.evolution.nsgaii.mutators;
 
 import org.javaneat.genome.NEATGenome;
 import org.jnsgaii.operators.Mutator;
@@ -17,6 +17,7 @@ public class NEATWeightMutator extends Mutator<NEATGenome> {
                 .filter(gene -> ThreadLocalRandom.current().nextDouble() < mutationProbability)
                 .forEach(gene -> gene.setWeight(gene.getWeight() + (ThreadLocalRandom.current().nextDouble() * 2 - 1) * mutationStrength));
 
+        object.sortGenes();
         return object;
     }
 

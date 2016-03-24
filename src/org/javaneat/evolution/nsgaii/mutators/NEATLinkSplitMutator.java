@@ -1,4 +1,4 @@
-package org.javaneat.evolution.nsgaii;
+package org.javaneat.evolution.nsgaii.mutators;
 
 import org.javaneat.genome.*;
 import org.jnsgaii.operators.Mutator;
@@ -29,6 +29,7 @@ public class NEATLinkSplitMutator extends Mutator<NEATGenome> {
         object.getConnectionGeneList().add(leftConnection);
         object.getConnectionGeneList().add(rightConnection);
 
+        object.sortGenes();
         return object;
     }
 

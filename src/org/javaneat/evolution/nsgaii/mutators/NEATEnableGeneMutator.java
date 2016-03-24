@@ -1,4 +1,4 @@
-package org.javaneat.evolution.nsgaii;
+package org.javaneat.evolution.nsgaii.mutators;
 
 import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
@@ -23,6 +23,7 @@ public class NEATEnableGeneMutator extends Mutator<NEATGenome> {
         if (validGenes.size() > 0)
             validGenes.get(ThreadLocalRandom.current().nextInt(validGenes.size())).setEnabled(true);
 
+        object.sortGenes();
         return object;
     }
 }
