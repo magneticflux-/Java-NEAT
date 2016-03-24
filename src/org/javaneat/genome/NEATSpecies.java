@@ -1,61 +1,45 @@
-package com.javaneat.evolution.nsgaii;
+package org.javaneat.genome;
 
-import com.javaneat.genome.ConnectionGene;
-import com.javaneat.genome.NEATGenome;
 import org.apache.commons.math3.util.FastMath;
-import org.skaggs.ec.operators.Speciator;
-import org.skaggs.ec.population.individual.Individual;
-import org.skaggs.ec.properties.AspectUser;
-import org.skaggs.ec.properties.Key;
-import org.skaggs.ec.properties.Properties;
-import org.skaggs.ec.util.Utils;
+import org.javaneat.evolution.NEATGenomeManager;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-/**
- * Created by Mitchell on 3/22/2016.
- */
-public class NEATSpeciator extends Speciator<NEATGenome> {
+@Deprecated
+public class NEATSpecies {
+    NEATGenome leader;
+    NEATGenomeManager manager;
+    List<NEATGenome> members = new ArrayList<>();
+    private double maxAverageFitness = 0;
+    private int timesSinceLastImprovement = 0;
 
-    @Override
-    public int requestAspectLocation(int startIndex) {
-        super.requestAspectLocation(startIndex);
-        return 3;
+    @SuppressWarnings("unused")
+    private NEATSpecies() // This is to serialize properly
+    {
     }
 
-    @Override
-    public String[] getAspectDescriptions() {
-        return new String[]{"Max Mating Distance", "Disjoint Gene Coefficient", "Excess Gene Coefficient"};
+    public NEATSpecies(final NEATGenome leader) {
+        this.leader = leader;
+        this.manager = leader.getManager();
+        this.attemptAddMember(leader);
     }
 
-    @Override
-    public Key[] requestProperties() {
-        return Utils.concat(super.requestProperties(), new Key[0]);
+    public boolean attemptAddMember(NEATGenome genome) {
+        if (this.isCompatible(genome)) {
+            this.members.add(genome);
+            genome.setSpecies(this);
+            return true;
+        }
+        return false;
     }
 
-    @Override
-    public void updateProperties(Properties properties) {
+    public boolean isCompatible(NEATGenome genome) {
+        return this.getGenomeDistance(this.leader, genome) < this.manager.getSpeciesCutoff();
     }
 
-    @Override
-    protected double getDistance(Individual<NEATGenome> individual, Individual<NEATGenome> individual2) {
-        return getGenomeDistance(individual, individual2);
-    }
-
-    @Override
-    public void modifyAspects(Individual<NEATGenome> individual, Random r) {
-        double[] aspects = individual.aspects;
-
-        AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex, r, 0, Double.POSITIVE_INFINITY);
-        AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 1, r, 0, Double.POSITIVE_INFINITY);
-        AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 2, r, 0, Double.POSITIVE_INFINITY);
-    }
-
-    private double getGenomeDistance(Individual<NEATGenome> individual, Individual<NEATGenome> individual2) {
+    public double getGenomeDistance(NEATGenome genome1, NEATGenome genome2) {
         // System.out.println("[DistanceCalc]");
-        NEATGenome genome1 = individual.getIndividual(), genome2 = individual2.getIndividual();
-
         genome1.sortGenes();
         genome2.sortGenes();
 
@@ -117,14 +101,48 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
             }
         }
         // System.out.println("[DistanceCalc]");
-        double disjointGeneCoefficient = (individual.aspects[startIndex] + individual2.aspects[startIndex]) / 2;
-        double excessGeneCoefficient = (individual.aspects[startIndex + 1] + individual2.aspects[startIndex + 1]) / 2;
-
-        return (disjointGeneCoefficient * numDisjoint) + (excessGeneCoefficient * numExcess) + (numMatched == 0 ? 0 : (weightDifference / numMatched));
+        return (this.manager.getDisjointGeneCoefficient() * numDisjoint) + (this.manager.getExcessGeneCoefficient() * numExcess)
+                + (numMatched == 0 ? 0 : (weightDifference / numMatched));
     }
 
-    @Override
-    protected double getMaxDistance(Individual<NEATGenome> individual, Individual<NEATGenome> individual2) {
-        return 0;
+    public NEATGenome getLeader() {
+        return this.leader;
+    }
+
+    public void setLeader(final NEATGenome leader) {
+        this.leader = leader;
+    }
+
+    public int getTimesSinceLastImprovement() {
+        return this.timesSinceLastImprovement;
+    }
+
+    public int getOffspringAllotment(double totalAverageFitness, int populationSize) {
+        return (int) FastMath.round(populationSize * this.getAverageFitness() / totalAverageFitness);
+    }
+
+    public double getAverageFitness() {
+        double total = 0;
+        for (NEATGenome genome : this.members) {
+            total += genome.getScore();
+        }
+        total /= this.members.size();
+
+        if (total > this.maxAverageFitness) {
+            this.maxAverageFitness = total;
+            this.timesSinceLastImprovement = 0;
+        } else {
+            this.timesSinceLastImprovement++;
+        }
+
+        return total;
+    }
+
+    public List<NEATGenome> getMembers() {
+        return this.members;
+    }
+
+    public String toString() {
+        return "NEATSpecies=[Leader:" + this.leader + ",Members:" + this.members + "]";
     }
 }

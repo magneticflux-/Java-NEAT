@@ -1,15 +1,15 @@
-package com.javaneat.evolution.nsgaii;
+package org.javaneat.evolution.nsgaii;
 
-import com.javaneat.evolution.NEATGenomeManager;
-import com.javaneat.genome.NEATGenome;
-import org.skaggs.ec.examples.defaultoperatorframework.RouletteWheelLinearSelection;
-import org.skaggs.ec.multiobjective.NSGA_II;
-import org.skaggs.ec.operators.DefaultOperator;
-import org.skaggs.ec.operators.Mutator;
-import org.skaggs.ec.operators.Operator;
-import org.skaggs.ec.operators.Selector;
-import org.skaggs.ec.properties.Key;
-import org.skaggs.ec.properties.Properties;
+import org.javaneat.evolution.NEATGenomeManager;
+import org.javaneat.genome.NEATGenome;
+import org.jnsgaii.examples.defaultoperatorframework.RouletteWheelLinearSelection;
+import org.jnsgaii.multiobjective.NSGA_II;
+import org.jnsgaii.operators.DefaultOperator;
+import org.jnsgaii.operators.Mutator;
+import org.jnsgaii.operators.Operator;
+import org.jnsgaii.operators.Selector;
+import org.jnsgaii.properties.Key;
+import org.jnsgaii.properties.Properties;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +30,7 @@ public final class Run {
         NEATPopulationGenerator neatPopulationGenerator = new NEATPopulationGenerator(neatGenomeManager);
 
         NEATSpeciator neatSpeciator = new NEATSpeciator();
-        List<Mutator<NEATGenome>> mutators = Arrays.asList(new NEATWeightMutator());
+        List<Mutator<NEATGenome>> mutators = Arrays.asList(new NEATWeightMutator(), new NEATLinkAdditionMutator());
         Selector<NEATGenome> selector = new RouletteWheelLinearSelection<>();
         Operator<NEATGenome> operator = new DefaultOperator<>(mutators, null, selector, neatSpeciator);
 

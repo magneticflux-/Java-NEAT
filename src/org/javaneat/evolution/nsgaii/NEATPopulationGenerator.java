@@ -1,12 +1,12 @@
-package com.javaneat.evolution.nsgaii;
+package org.javaneat.evolution.nsgaii;
 
-import com.javaneat.evolution.NEATGenomeManager;
-import com.javaneat.evolution.nsgaii.keys.NEATIntKey;
-import com.javaneat.genome.NEATGenome;
-import org.skaggs.ec.population.PopulationGenerator;
-import org.skaggs.ec.population.individual.Individual;
-import org.skaggs.ec.properties.Key;
-import org.skaggs.ec.properties.Properties;
+import org.javaneat.evolution.NEATGenomeManager;
+import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
+import org.javaneat.genome.NEATGenome;
+import org.jnsgaii.population.PopulationGenerator;
+import org.jnsgaii.population.individual.Individual;
+import org.jnsgaii.properties.Key;
+import org.jnsgaii.properties.Properties;
 
 import java.util.ArrayList;
 import java.util.Collection;

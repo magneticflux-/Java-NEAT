@@ -1,6 +1,6 @@
-package com.javaneat.evolution.nsgaii.keys;
+package org.javaneat.evolution.nsgaii.keys;
 
-import org.skaggs.ec.properties.Key;
+import org.jnsgaii.properties.Key;
 
 /**
  * Created by Mitchell on 1/18/2016.

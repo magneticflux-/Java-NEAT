@@ -1,4 +1,4 @@
-package com.javaneat.genome;
+package org.javaneat.genome;
 
 /**
  * Created by Mitchell on 1/18/2016.

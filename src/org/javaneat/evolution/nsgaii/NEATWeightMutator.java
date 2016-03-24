@@ -1,7 +1,7 @@
-package com.javaneat.evolution.nsgaii;
+package org.javaneat.evolution.nsgaii;
 
-import com.javaneat.genome.NEATGenome;
-import org.skaggs.ec.operators.Mutator;
+import org.javaneat.genome.NEATGenome;
+import org.jnsgaii.operators.Mutator;
 
 import java.util.concurrent.ThreadLocalRandom;
 
