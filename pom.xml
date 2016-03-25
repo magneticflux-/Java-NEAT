@@ -47,7 +47,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>19.0</version>
         </dependency>
         <dependency>
             <groupId>org.uncommons.watchmaker</groupId>
@@ -65,14 +65,14 @@
             <version>3.3.0</version>
         </dependency>
         <dependency>
-            <groupId>com.grapeshot</groupId>
-            <artifactId>halfnes</artifactId>
-            <version>061-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.skaggs</groupId>
             <artifactId>JNSGA-II</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.grapeshot</groupId>
+            <artifactId>halfnes</artifactId>
+            <version>062-dev</version>
         </dependency>
     </dependencies>
 </project>

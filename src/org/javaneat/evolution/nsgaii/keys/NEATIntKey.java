@@ -7,5 +7,5 @@ import org.jnsgaii.properties.Key;
  */
 public enum NEATIntKey implements Key.IntKey {
     INPUT_COUNT, OUTPUT_COUNT,
-    INITIAL_LINK_COUNT
+    NOVELTY_DISTANCE_COUNT, INITIAL_LINK_COUNT
 }

@@ -1,6 +1,7 @@
 package org.javaneat.genome;
 
 import org.javaneat.evolution.NEATGenomeManager;
+import org.javaneat.evolution.nsgaii.MarioBrosData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,10 +14,11 @@ public class NEATGenome implements Cloneable
     private final List<ConnectionGene> connectionGeneList;
     private final NEATGenomeManager manager;
     private final List<NeuronGene> neuronGeneList;
+    public MarioBrosData marioBrosData;
     private NEATSpecies species;
     private double score;
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "AssignmentToNull"})
     private NEATGenome() // This is to serialize properly
     {
         this.connectionGeneList = new ArrayList<>();
