@@ -7,7 +7,6 @@ import org.jnsgaii.operators.Speciator;
 import org.jnsgaii.population.individual.Individual;
 import org.jnsgaii.properties.AspectUser;
 import org.jnsgaii.properties.Key;
-import org.jnsgaii.properties.Properties;
 import org.jnsgaii.util.Utils;
 
 import java.util.List;
@@ -32,10 +31,6 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
     @Override
     public Key[] requestProperties() {
         return Utils.concat(super.requestProperties(), new Key[0]);
-    }
-
-    @Override
-    public void updateProperties(Properties properties) {
     }
 
     @Override
@@ -117,14 +112,14 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
             }
         }
         // System.out.println("[DistanceCalc]");
-        double disjointGeneCoefficient = (individual.aspects[startIndex] + individual2.aspects[startIndex]) / 2;
-        double excessGeneCoefficient = (individual.aspects[startIndex + 1] + individual2.aspects[startIndex + 1]) / 2;
+        double disjointGeneCoefficient = (individual.aspects[startIndex + 1] + individual2.aspects[startIndex + 1]) / 2;
+        double excessGeneCoefficient = (individual.aspects[startIndex + 2] + individual2.aspects[startIndex + 2]) / 2;
 
         return (disjointGeneCoefficient * numDisjoint) + (excessGeneCoefficient * numExcess) + (numMatched == 0 ? 0 : (weightDifference / numMatched));
     }
 
     @Override
     protected double getMaxDistance(Individual<NEATGenome> individual, Individual<NEATGenome> individual2) {
-        return 0;
+        return (individual.aspects[startIndex] + individual2.aspects[startIndex]) / 2;
     }
 }

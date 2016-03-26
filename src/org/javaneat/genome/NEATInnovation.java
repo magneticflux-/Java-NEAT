@@ -1,6 +1,8 @@
 package org.javaneat.genome;
 
-public class NEATInnovation {
+import java.io.Serializable;
+
+public class NEATInnovation implements Serializable {
     private int innovationID;
     private int neuronID;        // -1 if link
 

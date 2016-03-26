@@ -1,12 +1,19 @@
 package org.javaneat.genome;
 
+import java.io.Serializable;
+
 /**
  * Created by Mitchell on 1/18/2016.
  */
-public class InnovationKey {
+public class InnovationKey implements Serializable {
     private final InnovationType type;
     private final int fromNode;
     private final int toNode;
+
+    @SuppressWarnings("unused")
+    private InnovationKey() {
+        this(null, -1, -1);
+    }
 
     public InnovationKey(InnovationType type, int fromNode, int toNode) {
         this.type = type;

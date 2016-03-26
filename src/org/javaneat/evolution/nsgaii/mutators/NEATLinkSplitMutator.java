@@ -12,25 +12,28 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NEATLinkSplitMutator extends Mutator<NEATGenome> {
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
+        NEATGenome newObject = object.copy();
+        newObject.marioBrosData = null;
+
         Random r = ThreadLocalRandom.current();
-        ConnectionGene replaced = object.getConnectionGeneList().get(r.nextInt(object.getConnectionGeneList().size()));
+        ConnectionGene replaced = newObject.getConnectionGeneList().get(r.nextInt(newObject.getConnectionGeneList().size()));
         // Get a random connection to replace
 
         replaced.setEnabled(false); // Disable it
 
-        NEATInnovation splitInnovation = object.getManager().acquireSplitInnovation(replaced.getFromNode(), replaced.getToNode());
+        NEATInnovation splitInnovation = newObject.getManager().acquireSplitInnovation(replaced.getFromNode(), replaced.getToNode());
         int neuronID = splitInnovation.getNeuronID();
 
         NeuronGene insertedNeuron = new NeuronGene(neuronID, splitInnovation.getInnovationID(), NeuronType.HIDDEN);
-        ConnectionGene leftConnection = new ConnectionGene(replaced.getFromNode(), neuronID, object.getManager().acquireLinkInnovation(replaced.getFromNode(), neuronID).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
-        ConnectionGene rightConnection = new ConnectionGene(neuronID, replaced.getToNode(), object.getManager().acquireLinkInnovation(neuronID, replaced.getToNode()).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
+        ConnectionGene leftConnection = new ConnectionGene(replaced.getFromNode(), neuronID, newObject.getManager().acquireLinkInnovation(replaced.getFromNode(), neuronID).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
+        ConnectionGene rightConnection = new ConnectionGene(neuronID, replaced.getToNode(), newObject.getManager().acquireLinkInnovation(neuronID, replaced.getToNode()).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
 
-        object.getNeuronGeneList().add(insertedNeuron);
-        object.getConnectionGeneList().add(leftConnection);
-        object.getConnectionGeneList().add(rightConnection);
+        newObject.getNeuronGeneList().add(insertedNeuron);
+        newObject.getConnectionGeneList().add(leftConnection);
+        newObject.getConnectionGeneList().add(rightConnection);
 
-        object.sortGenes();
-        return object;
+        newObject.sortGenes();
+        return newObject;
     }
 
     @Override

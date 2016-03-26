@@ -3,18 +3,15 @@ package org.javaneat.evolution;
 import org.javaneat.genome.InnovationKey;
 import org.javaneat.genome.NEATInnovation;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NEATGenomeManager {
+public class NEATGenomeManager implements Serializable {
     @Deprecated
     private final double disjointGeneCoefficient;
     @Deprecated
     private final double excessGeneCoefficient;
-    @Deprecated
-    private final int numInputs;
-    @Deprecated
-    private final int numOutputs;
     @Deprecated
     private final int populationSize;
     @Deprecated
@@ -43,8 +40,11 @@ public class NEATGenomeManager {
     private final double crossoverChance;
     @Deprecated
     private final double mutationRemoveLinkProb;
-
     private final Map<InnovationKey, NEATInnovation> innovations = new HashMap<>();
+    @Deprecated
+    public int numInputs;
+    @Deprecated
+    public int numOutputs;
     private int globalInnovationID = 0;
     private int globalNeuronID = 0;
     private double speciesCutoff;

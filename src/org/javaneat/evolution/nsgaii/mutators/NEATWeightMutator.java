@@ -12,13 +12,15 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NEATWeightMutator extends Mutator<NEATGenome> {
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
+        NEATGenome newObject = object.copy();
+        newObject.marioBrosData = null;
 
-        object.getConnectionGeneList().parallelStream()
+        newObject.getConnectionGeneList().parallelStream()
                 .filter(gene -> ThreadLocalRandom.current().nextDouble() < mutationProbability)
                 .forEach(gene -> gene.setWeight(gene.getWeight() + (ThreadLocalRandom.current().nextDouble() * 2 - 1) * mutationStrength));
 
-        object.sortGenes();
-        return object;
+        newObject.sortGenes();
+        return newObject;
     }
 
     @Override

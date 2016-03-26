@@ -1,6 +1,8 @@
 package org.javaneat.genome;
 
-public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable {
+import java.io.Serializable;
+
+public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable, Serializable {
     private final int innovationID;
     private final int fromNode;
     private final int toNode;

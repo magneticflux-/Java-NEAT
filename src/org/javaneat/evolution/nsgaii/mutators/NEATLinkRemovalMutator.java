@@ -13,26 +13,29 @@ public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
     @SuppressWarnings("AssignmentToMethodParameter")
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
-        while (ThreadLocalRandom.current().nextDouble(0) <= mutationStrength) {
+        NEATGenome newObject = object.copy();
+        newObject.marioBrosData = null;
+
+        while (ThreadLocalRandom.current().nextDouble() <= mutationStrength) {
             mutationStrength--; // If strength is 1.5, 100% chance to remove first time, 50% second, 0% final check.
-            if (object.getConnectionGeneList().size() > 0) {
-                ConnectionGene removed = object.getConnectionGeneList().remove(ThreadLocalRandom.current().nextInt(object.getConnectionGeneList().size()));
+            if (newObject.getConnectionGeneList().size() > 0) {
+                ConnectionGene removed = newObject.getConnectionGeneList().remove(ThreadLocalRandom.current().nextInt(newObject.getConnectionGeneList().size()));
 
                 boolean toNeuronOrphaned = true;
                 boolean fromNeuronOrphaned = true;
-                for (ConnectionGene gene : object.getConnectionGeneList()) {
+                for (ConnectionGene gene : newObject.getConnectionGeneList()) {
                     toNeuronOrphaned &= gene.getToNode() == removed.getToNode() || gene.getFromNode() == removed.getToNode();
                     fromNeuronOrphaned &= gene.getToNode() == removed.getFromNode() || gene.getFromNode() == removed.getFromNode();
                 }
 
                 final boolean finalToNeuronOrphaned = toNeuronOrphaned;
                 final boolean finalFromNeuronOrphaned = fromNeuronOrphaned;
-                object.getNeuronGeneList().removeIf(neuronGene -> (finalToNeuronOrphaned && neuronGene.getNeuronID() == removed.getToNode()) || (finalFromNeuronOrphaned && neuronGene.getNeuronID() == removed.getFromNode()));
+                newObject.getNeuronGeneList().removeIf(neuronGene -> (finalToNeuronOrphaned && neuronGene.getNeuronID() == removed.getToNode()) || (finalFromNeuronOrphaned && neuronGene.getNeuronID() == removed.getFromNode()));
             }
         }
 
-        object.sortGenes();
-        return object;
+        newObject.sortGenes();
+        return newObject;
     }
 
     @Override

@@ -1,6 +1,8 @@
 package org.javaneat.genome;
 
-public class NeuronGene implements Comparable<NeuronGene> {
+import java.io.Serializable;
+
+public class NeuronGene implements Comparable<NeuronGene>, Serializable {
     private int neuronID;
     private int innovationID;
     private NeuronType neuronType;

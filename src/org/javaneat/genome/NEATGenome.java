@@ -1,22 +1,33 @@
 package org.javaneat.genome;
 
+import com.esotericsoftware.kryo.Kryo;
 import org.javaneat.evolution.NEATGenomeManager;
 import org.javaneat.evolution.nsgaii.MarioBrosData;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class NEATGenome implements Cloneable
+public class NEATGenome implements Cloneable, Serializable
 // Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
 {
+    private static final ThreadLocal<Kryo> kryo = ThreadLocal.withInitial(Kryo::new);
     private final List<ConnectionGene> connectionGeneList;
-    private final NEATGenomeManager manager;
     private final List<NeuronGene> neuronGeneList;
+    private final int numInputs;
+    private final int numOutputs;
+    @Nullable
     public MarioBrosData marioBrosData;
     private NEATSpecies species;
     private double score;
+    private NEATGenomeManager manager;
+
+    public NEATGenome(final NEATGenome other) {
+        this(other.connectionGeneList, other.neuronGeneList, other.manager);
+    }
 
     @SuppressWarnings({"unused", "AssignmentToNull"})
     private NEATGenome() // This is to serialize properly
@@ -24,10 +35,8 @@ public class NEATGenome implements Cloneable
         this.connectionGeneList = new ArrayList<>();
         this.neuronGeneList = new ArrayList<>();
         this.manager = null;
-    }
-
-    public NEATGenome(final NEATGenome other) {
-        this(other.connectionGeneList, other.neuronGeneList, other.manager);
+        numInputs = 0;
+        numOutputs = 0;
     }
 
     public NEATGenome(final List<ConnectionGene> connections, final List<NeuronGene> neurons, final NEATGenomeManager manager) {
@@ -44,12 +53,29 @@ public class NEATGenome implements Cloneable
                 e.printStackTrace();
             }
         }
+        numInputs = manager.getNumInputs();
+        numOutputs = manager.getNumOutputs();
     }
 
+    @Deprecated
     public NEATGenome(final Random rng, final NEATGenomeManager manager) {
         this.manager = manager;
         this.connectionGeneList = new ArrayList<>(1);
         this.neuronGeneList = new ArrayList<>(this.manager.getNumInputs() + this.manager.getNumOutputs() + 1);
+
+        this.addInitialNodes();
+        this.addRandomFirstLink(rng);
+        this.sortGenes();
+        numInputs = manager.getNumInputs();
+        numOutputs = manager.getNumOutputs();
+    }
+
+    public NEATGenome(Random rng, NEATGenomeManager manager, int numInputs, int numOutputs) {
+        this.numInputs = numInputs;
+        this.numOutputs = numOutputs;
+        this.manager = manager;
+        this.connectionGeneList = new ArrayList<>(1);
+        this.neuronGeneList = new ArrayList<>(numInputs + numOutputs + 1);
 
         this.addInitialNodes();
         this.addRandomFirstLink(rng);
@@ -59,19 +85,12 @@ public class NEATGenome implements Cloneable
     private void addInitialNodes() {
         this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(),
                 NeuronType.BIAS));
-        for (int i = 0; i < this.manager.getNumInputs(); i++)
+        for (int i = 0; i < numInputs; i++)
             this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(),
                     NeuronType.INPUT));
-        for (int i = 0; i < this.manager.getNumOutputs(); i++)
+        for (int i = 0; i < numOutputs; i++)
             this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(),
                     NeuronType.OUTPUT));
-    }
-
-    private void addRandomFirstLink(final Random rng) {
-        final int inputIndex = rng.nextInt(this.manager.getNumInputs() + 1); // Bias + Inputs considered
-        final int outputIndex = rng.nextInt(this.manager.getNumOutputs()) + this.manager.getOutputOffset(); // Only Outputs considered
-        final NEATInnovation link = this.manager.acquireLinkInnovation(inputIndex, outputIndex);
-        this.connectionGeneList.add(new ConnectionGene(inputIndex, outputIndex, link.getInnovationID(), 1, true));
     }
 
     public void sortGenes() {
@@ -118,11 +137,11 @@ public class NEATGenome implements Cloneable
         this.species = species;
     }
 
-    public double getAdjustedScore() {
-        if (this.species != null && this.species.getMembers().size() != 0)
-            return this.getScore() / this.species.getMembers().size();
-        else
-            return this.getScore();
+    private void addRandomFirstLink(final Random rng) {
+        final int inputIndex = rng.nextInt(numInputs + 1); // Bias + Inputs considered
+        final int outputIndex = rng.nextInt(numOutputs) + numInputs + 1; // Only Outputs considered
+        final NEATInnovation link = this.manager.acquireLinkInnovation(inputIndex, outputIndex);
+        this.connectionGeneList.add(new ConnectionGene(inputIndex, outputIndex, link.getInnovationID(), 1, true));
     }
 
     /**
@@ -139,7 +158,21 @@ public class NEATGenome implements Cloneable
         this.score = score;
     }
 
+    @Deprecated
+    public double getAdjustedScore() {
+        if (this.species != null && this.species.getMembers().size() != 0)
+            return this.getScore() / this.species.getMembers().size();
+        else
+            return this.getScore();
+    }
+
     public NEATGenome clone() throws CloneNotSupportedException {
         return (NEATGenome) super.clone();
+    }
+
+    public NEATGenome copy() {
+        NEATGenome neatGenome = kryo.get().copy(this);
+        neatGenome.manager = this.manager;
+        return neatGenome;
     }
 }

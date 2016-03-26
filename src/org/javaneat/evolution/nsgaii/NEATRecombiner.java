@@ -45,13 +45,16 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
         Random r = ThreadLocalRandom.current();
 
         NEATGenome best, notBest;
+        best = parent1;
+        notBest = parent2;
+        /*
         if (parent1.getAdjustedScore() == parent2.getAdjustedScore()) {
             best = r.nextBoolean() ? parent1 : parent2;
             notBest = best == parent1 ? parent2 : parent1;
         } else {
             best = parent1.getScore() > parent2.getScore() ? parent1 : parent2;
             notBest = parent1.getScore() < parent2.getScore() ? parent1 : parent2;
-        }
+        }*/
 
         List<ConnectionGene> parent1Genes = parent1.getConnectionGeneList();
         List<ConnectionGene> parent2Genes = parent2.getConnectionGeneList();
@@ -122,7 +125,8 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
                     if (offspringConnectionGenes.get(offspringConnectionGenes.size() - 1).getInnovationID() != selectedGene.getInnovationID()) {
                         offspringConnectionGenes.add(selectedGene);
                     } else {
-                        throw new IllegalStateException("Previous gene was duplicate, this should not happen.");
+                        System.err.println(parent1.hashCode() + " | " + parent2.hashCode());
+                        throw new IllegalStateException("Previous gene was duplicate, this should not happen. Genes: " + offspringConnectionGenes + " To add: " + selectedGene);
                     }
                 }
 

@@ -17,13 +17,20 @@ public class NEATDisableGeneMutator extends Mutator<NEATGenome> {
         return new String[]{"Disable Gene Mutation Strength", "Enable Gene Mutation Probability"};
     }
 
+    @SuppressWarnings("AssignmentToMethodParameter")
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
-        List<ConnectionGene> validGenes = object.getConnectionGeneList().stream().filter(gene -> !gene.getEnabled()).collect(Collectors.toList());
-        if (validGenes.size() > 0)
-            validGenes.get(ThreadLocalRandom.current().nextInt(validGenes.size())).setEnabled(false);
+        NEATGenome newObject = object.copy();
+        newObject.marioBrosData = null;
 
-        object.sortGenes();
-        return object;
+        while (ThreadLocalRandom.current().nextDouble() <= mutationStrength) {
+            mutationStrength--; // If strength is 1.5, 100% chance to remove first time, 50% second, 0% final check.
+            List<ConnectionGene> validGenes = newObject.getConnectionGeneList().stream().filter(gene -> !gene.getEnabled()).collect(Collectors.toList());
+            if (validGenes.size() > 0)
+                validGenes.get(ThreadLocalRandom.current().nextInt(validGenes.size())).setEnabled(false);
+        }
+
+        newObject.sortGenes();
+        return newObject;
     }
 }

@@ -1,12 +1,13 @@
 package org.javaneat.evolution.nsgaii;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by Mitchell on 3/24/2016.
  */
-public class MarioBrosData {
+public class MarioBrosData implements Serializable {
     public final List<DataPoint> dataPoints;
 
     public MarioBrosData() {
@@ -17,8 +18,13 @@ public class MarioBrosData {
         this.dataPoints.add(dataPoint);
     }
 
-    public static class DataPoint {
+    public static class DataPoint implements Serializable {
         public final int score, time, world, level, lives, marioX, marioY, marioState;
+
+        @SuppressWarnings("unused")
+        private DataPoint() {
+            this(0, 0, 0, 0, 0, 0, 0, 0);
+        }
 
         public DataPoint(int score, int time, int world, int level, int lives, int marioX, int marioY, int marioState) {
             this.score = score;

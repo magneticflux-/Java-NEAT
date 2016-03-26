@@ -38,11 +38,16 @@ public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> 
     public List<Individual<NEATGenome>> generatePopulation(int num, Properties properties) {
         List<Individual<NEATGenome>> population = new ArrayList<>(num);
         final double[] defaultAspects = (double[]) properties.getValue(Key.DoubleKey.DefaultDoubleKey.INITIAL_ASPECT_ARRAY);
+        final int numInputs = properties.getInt(NEATIntKey.INPUT_COUNT);
+        final int numOutputs = properties.getInt(NEATIntKey.OUTPUT_COUNT);
+
+        genomeManager.numInputs = numInputs;
+        genomeManager.numOutputs = numOutputs;
 
         switch (source) {
             case RANDOM:
-                for (int i = 0; i < population.size(); i++) {
-                    NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), this.genomeManager);
+                for (int i = 0; i < num; i++) {
+                    NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), genomeManager, numInputs, numOutputs);
                     population.add(new Individual<>(genome, defaultAspects));
                 }
                 break;
