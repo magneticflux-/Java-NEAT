@@ -40,35 +40,17 @@ public class NEATGenomeManager implements Serializable {
     private final double crossoverChance;
     @Deprecated
     private final double mutationRemoveLinkProb;
-    private final Map<InnovationKey, NEATInnovation> innovations = new HashMap<>();
-    @Deprecated
+    private final Map<InnovationKey, NEATInnovation> innovations;
     public int numInputs;
-    @Deprecated
     public int numOutputs;
     private int globalInnovationID = 0;
     private int globalNeuronID = 0;
+    @Deprecated
     private double speciesCutoff;
 
-    public NEATGenomeManager() // This is to serialize properly
+    private NEATGenomeManager() // This is to serialize properly
     {
-        this.numInputs = 0;
-        this.numOutputs = 0;
-        this.disjointGeneCoefficient = 0;
-        this.excessGeneCoefficient = 0;
-        this.weightDifferenceCoefficient = 0;
-        this.speciesTarget = 0;
-        this.speciesCutoffDelta = 0;
-        this.populationSize = 0;
-        this.speciesStagnantTimeLimit = 0;
-        this.mutationWeightProb = 0;
-        this.mutationWeightRange = 0;
-        this.mutationAddLinkProb = 0;
-        this.mutationAddNodeProb = 0;
-        this.mutationWeightWholeProb = 0;
-        this.enableMutationProb = 0;
-        this.disableMutationProb = 0;
-        this.crossoverChance = 0;
-        this.mutationRemoveLinkProb = 0;
+        this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     @Deprecated
@@ -93,24 +75,14 @@ public class NEATGenomeManager implements Serializable {
         this.crossoverChance = crossoverChance;
         this.mutationRemoveLinkProb = mutationRemoveLinkProb;
 
+        this.innovations = new HashMap<>();
+
         // Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
         this.acquireNodeInnovation(this.getNewNeuronID()); // Bias
         for (int i = 0; i < this.numInputs; i++)
             this.acquireNodeInnovation(this.getNewNeuronID()); // Inputs
         for (int i = 0; i < this.numOutputs; i++)
             this.acquireNodeInnovation(this.getNewNeuronID()); // Outputs
-    }
-
-    private static InnovationKey getNodeKey(final int nodeID) {
-        return new InnovationKey(InnovationKey.InnovationType.NODE, nodeID, -1);//"node_" + nodeID;
-    }
-
-    private static InnovationKey getLinkKey(final int fromNode, final int toNode) {
-        return new InnovationKey(InnovationKey.InnovationType.LINK, fromNode, toNode);//"link_" + fromNode + ":" + toNode;
-    }
-
-    private static InnovationKey getSplitKey(final int fromNode, final int toNode) {
-        return new InnovationKey(InnovationKey.InnovationType.SPLIT, fromNode, toNode);//"split_" + fromNode + ":" + toNode;
     }
 
     public NEATInnovation acquireNodeInnovation(final int nodeID) // ONLY for input, output, and bias nodes.
@@ -127,10 +99,18 @@ public class NEATGenomeManager implements Serializable {
         return result;
     }
 
+    private static InnovationKey getNodeKey(final int nodeID) {
+        return new InnovationKey(InnovationKey.InnovationType.NODE, nodeID, -1);
+    }
+
     private int getNewInnovationID() {
         int result = this.globalInnovationID;
         this.globalInnovationID++;
         return result;
+    }
+
+    public NEATGenomeManager(int numInputs, int numOutputs) {
+        this(numInputs, numOutputs, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     @Deprecated
@@ -166,12 +146,20 @@ public class NEATGenomeManager implements Serializable {
         return this.innovations.get(key);
     }
 
+    private static InnovationKey getLinkKey(final int fromNode, final int toNode) {
+        return new InnovationKey(InnovationKey.InnovationType.LINK, fromNode, toNode);
+    }
+
     public NEATInnovation acquireSplitInnovation(final int fromNode, final int toNode) // For a split mutation
     {
         InnovationKey key = NEATGenomeManager.getSplitKey(fromNode, toNode);
         if (!this.innovations.containsKey(key))
             this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), this.getNewNeuronID()));
         return this.innovations.get(key);
+    }
+
+    private static InnovationKey getSplitKey(final int fromNode, final int toNode) {
+        return new InnovationKey(InnovationKey.InnovationType.SPLIT, fromNode, toNode);
     }
 
     public int getBiasOffset() {
@@ -193,22 +181,18 @@ public class NEATGenomeManager implements Serializable {
         return 1 + this.getNumInputs() + this.getNumOutputs();
     }
 
-    @Deprecated
     public int getNumInputs() {
         return this.numInputs;
     }
 
-    @Deprecated
     public int getNumOutputs() {
         return this.numOutputs;
     }
 
-    @Deprecated
     public int getInputOffset() {
         return 1;
     }
 
-    @Deprecated
     public int getOutputOffset() {
         return 1 + this.getNumInputs();
     }

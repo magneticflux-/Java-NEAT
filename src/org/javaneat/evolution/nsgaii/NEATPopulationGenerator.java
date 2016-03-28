@@ -10,6 +10,7 @@ import org.jnsgaii.properties.Properties;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -19,19 +20,16 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> {
 
     private final Source source;
-    private final NEATGenomeManager genomeManager;
     private final Collection<NEATGenome> seed;
 
-    public NEATPopulationGenerator(NEATGenomeManager genomeManager) {
+    public NEATPopulationGenerator() {
         this.source = Source.RANDOM;
-        this.genomeManager = genomeManager;
         this.seed = new ArrayList<>();
     }
 
-    public NEATPopulationGenerator(NEATGenomeManager genomeManager, Collection<NEATGenome> seed) {
+    public NEATPopulationGenerator(Collection<NEATGenome> seed) {
         this.seed = new ArrayList<>(seed);
         this.source = Source.SEEDED;
-        this.genomeManager = genomeManager;
     }
 
     @Override
@@ -40,6 +38,8 @@ public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> 
         final double[] defaultAspects = (double[]) properties.getValue(Key.DoubleKey.DefaultDoubleKey.INITIAL_ASPECT_ARRAY);
         final int numInputs = properties.getInt(NEATIntKey.INPUT_COUNT);
         final int numOutputs = properties.getInt(NEATIntKey.OUTPUT_COUNT);
+
+        NEATGenomeManager genomeManager = new NEATGenomeManager(numInputs, numOutputs);
 
         genomeManager.numInputs = numInputs;
         genomeManager.numOutputs = numOutputs;
@@ -52,6 +52,14 @@ public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> 
                 }
                 break;
             case SEEDED:
+                Iterator<NEATGenome> iterator = seed.iterator();
+                for (int i = 0; i < num; i++) {
+                    population.add(new Individual<>(new NEATGenome(iterator.next()), defaultAspects));
+
+                    if (!iterator.hasNext()) { // Reset to the beginning
+                        iterator = seed.iterator();
+                    }
+                }
                 break;
         }
 
