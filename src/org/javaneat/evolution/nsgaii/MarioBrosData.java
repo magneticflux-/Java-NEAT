@@ -14,6 +14,11 @@ public class MarioBrosData implements Serializable {
         dataPoints = new LinkedList<>();
     }
 
+    @Override
+    public String toString() {
+        return dataPoints.toString();
+    }
+
     public void addDataPoint(DataPoint dataPoint) {
         this.dataPoints.add(dataPoint);
     }
@@ -35,6 +40,11 @@ public class MarioBrosData implements Serializable {
             this.marioX = marioX;
             this.marioY = marioY;
             this.marioState = marioState;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%d %d %d %d %d %d %d %d", score, time, world, level, lives, marioX, marioY, marioState);
         }
     }
 }

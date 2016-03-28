@@ -47,7 +47,7 @@ public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> 
         switch (source) {
             case RANDOM:
                 for (int i = 0; i < num; i++) {
-                    NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), genomeManager, numInputs, numOutputs);
+                    NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), genomeManager);
                     population.add(new Individual<>(genome, defaultAspects));
                 }
                 break;
