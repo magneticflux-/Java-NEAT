@@ -6,18 +6,17 @@ import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
 import org.javaneat.genome.NeuronGene;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class NEATPhenome {
-    private NEATGenomeManager manager;
-    private List<NEATConnection> connectionList;
-    private double[] preActivation;
-    private double[] postActivation;
+    private final NEATGenomeManager manager;
+    private final List<NEATConnection> connectionList;
+    private final double[] preActivation;
+    private final double[] postActivation;
 
     public NEATPhenome(NEATGenome genome) {
-        this.connectionList = new ArrayList<>(genome.getConnectionGeneList().size());
         this.preActivation = new double[genome.getNeuronGeneList().size()];
         this.postActivation = new double[genome.getNeuronGeneList().size()];
         this.manager = genome.getManager();
@@ -29,16 +28,13 @@ public class NEATPhenome {
             neuronIDToArrayIndex.put(gene.getNeuronID(), neuronIDToArrayIndex.size());
         }
 
-        for (ConnectionGene gene : genome.getConnectionGeneList()) {
-            if (gene.getEnabled()) {
-                NEATConnection connection = new NEATConnection(neuronIDToArrayIndex.get(gene.getToNode()), neuronIDToArrayIndex.get(gene.getFromNode()),
-                        gene.getWeight());
-                this.connectionList.add(connection);
-            }
-        }
+        connectionList = genome.getConnectionGeneList().stream()
+                .filter(ConnectionGene::getEnabled).map(
+                        connectionGene -> new NEATConnection(neuronIDToArrayIndex.get(connectionGene.getToNode()), neuronIDToArrayIndex.get(connectionGene.getFromNode()), connectionGene.getWeight()))
+                .collect(Collectors.toList());
     }
 
-    public static double activationFunction(double x) {
+    private static double activationFunction(double x) {
         return FastMath.tanh(x);
     }
 

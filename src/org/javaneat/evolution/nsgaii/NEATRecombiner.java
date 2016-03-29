@@ -121,14 +121,15 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
                 // 75% chance to be disabled if the parent's gene was disabled
                 if (offspringConnectionGenes.size() == 0) {
                     offspringConnectionGenes.add(selectedGene);
+                } else if (offspringConnectionGenes.get(offspringConnectionGenes.size() - 1).getInnovationID() != selectedGene.getInnovationID()) {
+                    offspringConnectionGenes.add(selectedGene);
                 } else {
-                    if (offspringConnectionGenes.get(offspringConnectionGenes.size() - 1).getInnovationID() != selectedGene.getInnovationID()) {
-                        offspringConnectionGenes.add(selectedGene);
-                    } else {
-                        System.err.println(parent1.hashCode() + " | " + parent2.hashCode());
-                        throw new IllegalStateException("Previous gene was duplicate, this should not happen. Genes: " + offspringConnectionGenes + " To add: " + selectedGene);
-                    }
+                    System.err.println(parent1.hashCode() + " | " + parent2.hashCode());
+                    System.err.println("P1: " + parent1.getConnectionGeneList());
+                    System.err.println("P2: " + parent2.getConnectionGeneList());
+                    throw new IllegalStateException("Previous gene was duplicate, this should not happen. Genes: " + offspringConnectionGenes + " To add: " + selectedGene);
                 }
+
 
                 if (!addedNeuronIDs.contains(selectedGene.getFromNode())) {
                     NeuronGene gene = getNeuron(selectedGene.getFromNode(), best, notBest, r);
@@ -151,6 +152,9 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
             }
         }
 
-        return new NEATGenome(offspringConnectionGenes, offspringNeuronGenes, parent1.getManager());
+        NEATGenome genome = new NEATGenome(offspringConnectionGenes, offspringNeuronGenes, parent1.getManager());
+
+        genome.sortGenes();
+        return genome;
     }
 }

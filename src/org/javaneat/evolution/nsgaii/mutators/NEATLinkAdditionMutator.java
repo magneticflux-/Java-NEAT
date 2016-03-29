@@ -26,9 +26,9 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
             // WARNING: ***Lambda singularity approaching***
             newObject.getNeuronGeneList().stream().forEach( // For every neuron
                 fromNode -> possibleLinks.addAll( // Add all of the possible links that are...
-                        newObject.getNeuronGeneList().parallelStream().filter(
+                        newObject.getNeuronGeneList().stream().filter(
                                 toNode -> toNode.getNeuronType() == NeuronType.HIDDEN || toNode.getNeuronType() == NeuronType.OUTPUT).filter( // From a hidden or output neuron
-                                toNode -> newObject.getConnectionGeneList().parallelStream().noneMatch(
+                                toNode -> newObject.getConnectionGeneList().stream().noneMatch(
                                         connectionGene -> connectionGene.getFromNode() == fromNode.getNeuronID() && connectionGene.getToNode() == toNode.getNeuronID())).map( // And no connectionGenes already link
                                 toNode -> new PossibleLink(fromNode.getNeuronID(), toNode.getNeuronID())).collect(Collectors.toList()))); // Add them to a small list and add them all to the list
 
@@ -36,6 +36,10 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
                 PossibleLink chosenLink = possibleLinks.get(ThreadLocalRandom.current().nextInt(possibleLinks.size()));
 
                 ConnectionGene gene = new ConnectionGene(chosenLink.fromNode, chosenLink.toNode, newObject.getManager().acquireLinkInnovation(chosenLink.fromNode, chosenLink.toNode).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
+
+                if (newObject.getConnectionGeneList().stream().anyMatch(connectionGene -> connectionGene.getInnovationID() == gene.getInnovationID())) {
+                    throw new IllegalStateException("Tried to add duplicate gene! Gene: " + gene + " Genome: " + newObject);
+                }
 
                 newObject.getConnectionGeneList().add(gene);
             }

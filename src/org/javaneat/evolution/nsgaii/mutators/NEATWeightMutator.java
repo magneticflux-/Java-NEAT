@@ -15,7 +15,7 @@ public class NEATWeightMutator extends Mutator<NEATGenome> {
         NEATGenome newObject = object.copy();
         newObject.marioBrosData = null;
 
-        newObject.getConnectionGeneList().parallelStream()
+        newObject.getConnectionGeneList().stream()
                 .filter(gene -> ThreadLocalRandom.current().nextDouble() < mutationProbability)
                 .forEach(gene -> gene.setWeight(gene.getWeight() + (ThreadLocalRandom.current().nextDouble() * 2 - 1) * mutationStrength));
 
