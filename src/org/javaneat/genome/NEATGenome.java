@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class NEATGenome implements Serializable
 // Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
 {
-    //private static final ThreadLocal<Kryo> kryo = ThreadLocal.withInitial(Kryo::new);
     private final List<ConnectionGene> connectionGeneList;
     private final List<NeuronGene> neuronGeneList;
     @Nullable
@@ -136,8 +135,6 @@ public class NEATGenome implements Serializable
     }
 
     public NEATGenome copy() {
-        //NEATGenome neatGenome = kryo.get().copy(this);
-        //neatGenome.manager = this.manager;
         return new NEATGenome(this);
     }
 }

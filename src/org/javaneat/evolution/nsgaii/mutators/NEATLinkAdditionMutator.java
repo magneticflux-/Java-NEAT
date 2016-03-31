@@ -20,8 +20,6 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
         NEATGenome newObject = object.copy();
         newObject.marioBrosData = null;
 
-        while (ThreadLocalRandom.current().nextDouble() <= mutationStrength) {
-            mutationStrength--; // If strength is 1.5, 100% chance to remove first time, 50% second, 0% final check.
         List<PossibleLink> possibleLinks = new ArrayList<>();
             // WARNING: ***Lambda singularity approaching***
             newObject.getNeuronGeneList().stream().forEach( // For every neuron
@@ -43,7 +41,6 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
 
                 newObject.getConnectionGeneList().add(gene);
             }
-        }
 
         newObject.sortGenes();
         return newObject;

@@ -116,9 +116,7 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
             }
 
             if (selectedGene != null) {
-                selectedGene = new ConnectionGene(selectedGene.getFromNode(), selectedGene.getToNode(), selectedGene.getInnovationID(),
-                        selectedGene.getWeight(), selectedGene.getEnabled() || r.nextInt(4) == 0);
-                // 75% chance to be disabled if the parent's gene was disabled
+                selectedGene = new ConnectionGene(selectedGene);
                 if (offspringConnectionGenes.size() == 0) {
                     offspringConnectionGenes.add(selectedGene);
                 } else if (offspringConnectionGenes.get(offspringConnectionGenes.size() - 1).getInnovationID() != selectedGene.getInnovationID()) {
@@ -130,10 +128,9 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
                     throw new IllegalStateException("Previous gene was duplicate, this should not happen. Genes: " + offspringConnectionGenes + " To add: " + selectedGene);
                 }
 
-
                 if (!addedNeuronIDs.contains(selectedGene.getFromNode())) {
                     NeuronGene gene = getNeuron(selectedGene.getFromNode(), best, notBest, r);
-                    offspringNeuronGenes.add(gene);
+                    offspringNeuronGenes.add(new NeuronGene(gene));
                     addedNeuronIDs.add(selectedGene.getFromNode());
                     if (gene == null) {
                         System.err.println("\nAlpha parent: " + parent1 + "\nBeta parent: " + parent2 + "\nSelected gene: " + selectedGene);
@@ -142,7 +139,7 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
                 }
                 if (!addedNeuronIDs.contains(selectedGene.getToNode())) {
                     NeuronGene gene = getNeuron(selectedGene.getToNode(), best, notBest, r);
-                    offspringNeuronGenes.add(gene);
+                    offspringNeuronGenes.add(new NeuronGene(gene));
                     addedNeuronIDs.add(selectedGene.getToNode());
                     if (gene == null) {
                         System.err.println("\nAlpha parent: " + parent1 + "\nBeta parent: " + parent2 + "\nSelected gene: " + selectedGene);

@@ -37,6 +37,6 @@ public class NeuronGene implements Comparable<NeuronGene>, Serializable {
     }
 
     public int compareTo(NeuronGene o) {
-        return this.innovationID - o.innovationID;
+        return Integer.compare(this.innovationID, o.innovationID);
     }
 }
