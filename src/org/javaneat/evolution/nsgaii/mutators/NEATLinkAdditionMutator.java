@@ -2,45 +2,55 @@ package org.javaneat.evolution.nsgaii.mutators;
 
 import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
-import org.javaneat.genome.NeuronType;
+import org.javaneat.genome.NeuronGene;
 import org.jnsgaii.operators.Mutator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  * Created by Mitchell on 3/24/2016.
  */
 public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
+
+    private static final Logger log = Logger.getLogger("NEATLinkAdditionMutator");
+
     @SuppressWarnings("AssignmentToMethodParameter")
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
         NEATGenome newObject = object.copy();
         newObject.marioBrosData = null;
 
+        log.info("Mutating " + newObject);
+
         List<PossibleLink> possibleLinks = new ArrayList<>();
-            // WARNING: ***Lambda singularity approaching***
-            newObject.getNeuronGeneList().stream().forEach( // For every neuron
-                fromNode -> possibleLinks.addAll( // Add all of the possible links that are...
-                        newObject.getNeuronGeneList().stream().filter(
-                                toNode -> toNode.getNeuronType() == NeuronType.HIDDEN || toNode.getNeuronType() == NeuronType.OUTPUT).filter( // From a hidden or output neuron
-                                toNode -> newObject.getConnectionGeneList().stream().noneMatch(
-                                        connectionGene -> connectionGene.getFromNode() == fromNode.getNeuronID() && connectionGene.getToNode() == toNode.getNeuronID())).map( // And no connectionGenes already link
-                                toNode -> new PossibleLink(fromNode.getNeuronID(), toNode.getNeuronID())).collect(Collectors.toList()))); // Add them to a small list and add them all to the list
+        for (NeuronGene neuronGene1 : newObject.getNeuronGeneList()) { // Add everything
+            possibleLinks.addAll(newObject.getNeuronGeneList().parallelStream().map(neuronGene2 -> new PossibleLink(neuronGene1.getNeuronID(), neuronGene2.getNeuronID())).collect(Collectors.toList()));
+        }
+        possibleLinks.removeIf(possibleLink -> { // Remove invalid ones
+            return possibleLink.toNode < newObject.getManager().getOutputOffset() // Input or bias
+                    || newObject.getConnectionGeneList().parallelStream()
+                    .anyMatch(connectionGene -> possibleLink.fromNode == connectionGene.getFromNode() && possibleLink.toNode == connectionGene.getToNode()); // Already has one
+        });
 
-            if (possibleLinks.size() > 0) {
-                PossibleLink chosenLink = possibleLinks.get(ThreadLocalRandom.current().nextInt(possibleLinks.size()));
+        log.info("Found " + possibleLinks.size() + " possible links...");
 
-                ConnectionGene gene = new ConnectionGene(chosenLink.fromNode, chosenLink.toNode, newObject.getManager().acquireLinkInnovation(chosenLink.fromNode, chosenLink.toNode).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
+        if (possibleLinks.size() > 0) {
+            PossibleLink chosenLink = possibleLinks.get(ThreadLocalRandom.current().nextInt(possibleLinks.size()));
 
-                if (newObject.getConnectionGeneList().stream().anyMatch(connectionGene -> connectionGene.getInnovationID() == gene.getInnovationID())) {
-                    throw new IllegalStateException("Tried to add duplicate gene! Gene: " + gene + " Genome: " + newObject);
-                }
+            ConnectionGene gene = new ConnectionGene(chosenLink.fromNode, chosenLink.toNode, newObject.getManager().acquireLinkInnovation(chosenLink.fromNode, chosenLink.toNode).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
 
-                newObject.getConnectionGeneList().add(gene);
+            log.info("Created ConnectionGene " + gene);
+
+            if (newObject.getConnectionGeneList().stream().anyMatch(connectionGene -> connectionGene.getInnovationID() == gene.getInnovationID())) {
+                throw new IllegalStateException("Tried to add duplicate gene! Gene: " + gene + " Genome: " + newObject);
             }
+
+            newObject.getConnectionGeneList().add(gene);
+        }
 
         newObject.sortGenes();
         return newObject;
