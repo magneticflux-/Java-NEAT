@@ -1,6 +1,10 @@
 package org.javaneat.evolution.nsgaii.mutators;
 
-import org.javaneat.genome.*;
+import org.javaneat.genome.ConnectionGene;
+import org.javaneat.genome.NEATGenome;
+import org.javaneat.genome.NEATInnovation;
+import org.javaneat.genome.NeuronGene;
+import org.javaneat.genome.NeuronType;
 import org.jnsgaii.operators.Mutator;
 
 import java.util.Random;
@@ -15,11 +19,17 @@ public class NEATLinkSplitMutator extends Mutator<NEATGenome> {
     private static final Logger log = Logger.getLogger("NEATLinkSplitMutator");
 
     @Override
+    public String[] getAspectDescriptions() {
+        return new String[]{"Link Split Mutation Strength", "Link Split Mutation Probability"};
+    }
+
+    @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
         NEATGenome newObject = object.copy();
 
         log.info("Mutating " + newObject);
 
+        /*
         boolean stop = false;
         for (ConnectionGene gene : newObject.getConnectionGeneList()) {
             if (newObject.getNeuronGeneList().stream().noneMatch(neuronGene -> neuronGene.getNeuronID() == gene.getToNode())) {
@@ -33,6 +43,7 @@ public class NEATLinkSplitMutator extends Mutator<NEATGenome> {
         }
         if (stop)
             throw new Error("Error");
+            */
 
         Random r = ThreadLocalRandom.current();
         if (newObject.getConnectionGeneList().size() < 1) {
@@ -50,24 +61,21 @@ public class NEATLinkSplitMutator extends Mutator<NEATGenome> {
         ConnectionGene leftConnection = new ConnectionGene(replaced.getFromNode(), neuronID, newObject.getManager().acquireLinkInnovation(replaced.getFromNode(), neuronID).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
         ConnectionGene rightConnection = new ConnectionGene(neuronID, replaced.getToNode(), newObject.getManager().acquireLinkInnovation(neuronID, replaced.getToNode()).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
 
-
+/*
         if (newObject.getConnectionGeneList().stream().anyMatch(connectionGene -> connectionGene.getInnovationID() == leftConnection.getInnovationID())) {
             throw new IllegalStateException("Tried to add duplicate gene!\nLeft connection Gene: " + leftConnection + "\nGenome: " + newObject);
         }
         if (newObject.getConnectionGeneList().stream().anyMatch(connectionGene -> connectionGene.getInnovationID() == rightConnection.getInnovationID())) {
             throw new IllegalStateException("Tried to add duplicate gene!\nRight connection Gene: " + rightConnection + "\nGenome: " + newObject);
         }
+        */
 
         newObject.getNeuronGeneList().add(insertedNeuron);
         newObject.getConnectionGeneList().add(leftConnection);
         newObject.getConnectionGeneList().add(rightConnection);
 
         newObject.sortGenes();
+        newObject.verifyGenome();
         return newObject;
-    }
-
-    @Override
-    public String[] getAspectDescriptions() {
-        return new String[]{"Link Split Mutation Strength", "Link Split Mutation Probability"};
     }
 }

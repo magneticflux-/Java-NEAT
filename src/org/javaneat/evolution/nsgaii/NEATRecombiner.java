@@ -9,7 +9,11 @@ import org.jnsgaii.properties.Key;
 import org.jnsgaii.properties.Properties;
 import org.jnsgaii.util.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -19,25 +23,11 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
     private int numInputs;
     private int numOutputs;
 
-    private static NeuronGene getNeuron(int neuronID, NEATGenome best, NEATGenome notBest, Random rng) {
-        NeuronGene output;
-        output = best.getNeuronGene(neuronID);
-        if (output == null) output = notBest.getNeuronGene(neuronID);
-        return output;
-    }
-
     @Override
     public void updateProperties(Properties properties) {
         super.updateProperties(properties);
         numInputs = properties.getInt(NEATIntKey.INPUT_COUNT);
         numOutputs = properties.getInt(NEATIntKey.OUTPUT_COUNT);
-    }
-
-    @Override
-    public Key[] requestProperties() {
-        return Utils.concat(super.requestProperties(), new Key[]{
-                NEATIntKey.INPUT_COUNT, NEATIntKey.OUTPUT_COUNT
-        });
     }
 
     @Override
@@ -56,10 +46,11 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
             notBest = parent1.getScore() < parent2.getScore() ? parent1 : parent2;
         }*/
 
-        List<ConnectionGene> parent1Genes = parent1.getConnectionGeneList();
-        List<ConnectionGene> parent2Genes = parent2.getConnectionGeneList();
         parent1.sortGenes();
         parent2.sortGenes();
+
+        List<ConnectionGene> parent1Genes = parent1.getConnectionGeneList();
+        List<ConnectionGene> parent2Genes = parent2.getConnectionGeneList();
 
         int parent1GeneIndex = 0;
         int parent2GeneIndex = 0;
@@ -78,9 +69,11 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
             ConnectionGene selectedGene = null;
 
             ConnectionGene parent1Gene = null;
-            if (parent1GeneIndex < parent1Genes.size()) parent1Gene = parent1Genes.get(parent1GeneIndex);
+            if (parent1GeneIndex < parent1Genes.size())
+                parent1Gene = parent1Genes.get(parent1GeneIndex);
             ConnectionGene parent2Gene = null;
-            if (parent2GeneIndex < parent2Genes.size()) parent2Gene = parent2Genes.get(parent2GeneIndex);
+            if (parent2GeneIndex < parent2Genes.size())
+                parent2Gene = parent2Genes.get(parent2GeneIndex);
 
             if (parent1Gene == null && parent2Gene != null) {
                 if (best == parent2) {
@@ -152,6 +145,21 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
         NEATGenome genome = new NEATGenome(offspringConnectionGenes, offspringNeuronGenes, parent1.getManager());
 
         genome.sortGenes();
+        genome.verifyGenome();
         return genome;
+    }
+
+    private static NeuronGene getNeuron(int neuronID, NEATGenome best, NEATGenome notBest, Random rng) {
+        NeuronGene output;
+        output = best.getNeuronGene(neuronID);
+        if (output == null) output = notBest.getNeuronGene(neuronID);
+        return output;
+    }
+
+    @Override
+    public Key[] requestProperties() {
+        return Utils.concat(super.requestProperties(), new Key[]{
+                NEATIntKey.INPUT_COUNT, NEATIntKey.OUTPUT_COUNT
+        });
     }
 }

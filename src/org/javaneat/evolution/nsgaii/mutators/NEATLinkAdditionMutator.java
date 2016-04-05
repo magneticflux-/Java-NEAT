@@ -18,6 +18,11 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
 
     private static final Logger log = Logger.getLogger("NEATLinkAdditionMutator");
 
+    @Override
+    public String[] getAspectDescriptions() {
+        return new String[]{"Link Addition Mutation Strength", "Link Addition Mutation Probability"};
+    }
+
     @SuppressWarnings("AssignmentToMethodParameter")
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
@@ -30,11 +35,9 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
         for (NeuronGene neuronGene1 : newObject.getNeuronGeneList()) { // Add everything
             possibleLinks.addAll(newObject.getNeuronGeneList().parallelStream().map(neuronGene2 -> new PossibleLink(neuronGene1.getNeuronID(), neuronGene2.getNeuronID())).collect(Collectors.toList()));
         }
-        possibleLinks.removeIf(possibleLink -> { // Remove invalid ones
-            return possibleLink.toNode < newObject.getManager().getOutputOffset() // Input or bias
-                    || newObject.getConnectionGeneList().parallelStream()
-                    .anyMatch(connectionGene -> possibleLink.fromNode == connectionGene.getFromNode() && possibleLink.toNode == connectionGene.getToNode()); // Already has one
-        });
+        possibleLinks.removeIf(possibleLink -> possibleLink.toNode < newObject.getManager().getOutputOffset() // Input or bias
+                || newObject.getConnectionGeneList().parallelStream()
+                .anyMatch(connectionGene -> possibleLink.fromNode == connectionGene.getFromNode() && possibleLink.toNode == connectionGene.getToNode()));
 
         log.info("Found " + possibleLinks.size() + " possible links...");
 
@@ -45,20 +48,18 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
 
             log.info("Created ConnectionGene " + gene);
 
+            /*
             if (newObject.getConnectionGeneList().stream().anyMatch(connectionGene -> connectionGene.getInnovationID() == gene.getInnovationID())) {
                 throw new IllegalStateException("Tried to add duplicate gene! Gene: " + gene + " Genome: " + newObject);
             }
+            */
 
             newObject.getConnectionGeneList().add(gene);
         }
 
         newObject.sortGenes();
+        newObject.verifyGenome();
         return newObject;
-    }
-
-    @Override
-    public String[] getAspectDescriptions() {
-        return new String[]{"Link Addition Mutation Strength", "Link Addition Mutation Probability"};
     }
 
     private class PossibleLink {
@@ -71,6 +72,13 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
         }
 
         @Override
+        public int hashCode() {
+            int result = fromNode;
+            result = 31 * result + toNode;
+            return result;
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -80,13 +88,6 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
             if (fromNode != that.fromNode) return false;
             return toNode == that.toNode;
 
-        }
-
-        @Override
-        public int hashCode() {
-            int result = fromNode;
-            result = 31 * result + toNode;
-            return result;
         }
     }
 }

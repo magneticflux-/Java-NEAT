@@ -10,6 +10,11 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Mitchell on 3/24/2016.
  */
 public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
+    @Override
+    public String[] getAspectDescriptions() {
+        return new String[]{"Link Removal Mutation Strength", "Link Removal Mutation Probability"};
+    }
+
     @SuppressWarnings("AssignmentToMethodParameter")
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
@@ -35,11 +40,7 @@ public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
         }
 
         newObject.sortGenes();
+        newObject.verifyGenome();
         return newObject;
-    }
-
-    @Override
-    public String[] getAspectDescriptions() {
-        return new String[]{"Link Removal Mutation Strength", "Link Removal Mutation Probability"};
     }
 }

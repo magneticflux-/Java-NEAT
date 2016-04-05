@@ -21,7 +21,6 @@ public class NEATEnableGeneMutator extends Mutator<NEATGenome> {
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
         NEATGenome newObject = object.copy();
-        newObject.marioBrosData = null;
 
         while (ThreadLocalRandom.current().nextDouble() <= mutationStrength) {
             mutationStrength--; // If strength is 1.5, 100% chance to remove first time, 50% second, 0% final check.
@@ -31,6 +30,7 @@ public class NEATEnableGeneMutator extends Mutator<NEATGenome> {
         }
 
         newObject.sortGenes();
+        newObject.verifyGenome();
         return newObject;
     }
 }

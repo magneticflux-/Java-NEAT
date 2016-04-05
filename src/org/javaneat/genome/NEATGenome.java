@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class NEATGenome implements Serializable
@@ -71,6 +72,31 @@ public class NEATGenome implements Serializable
     public void sortGenes() {
         Collections.sort(this.connectionGeneList);
         Collections.sort(this.neuronGeneList);
+    }
+
+    public void verifyGenome() {
+        AtomicBoolean error = new AtomicBoolean(false);
+
+        for (ConnectionGene gene1 : connectionGeneList) {
+            connectionGeneList.stream().filter(gene2 -> gene1 != gene2 && gene1.equals(gene2)).forEach(gene2 -> {
+                System.err.println("Duplicate gene " + gene1);
+                error.set(true);
+            });
+
+            boolean toNeuronExists = neuronGeneList.stream().anyMatch(neuronGene -> neuronGene.getNeuronID() == gene1.getToNode());
+            boolean fromNeuronExists = neuronGeneList.stream().anyMatch(neuronGene -> neuronGene.getNeuronID() == gene1.getFromNode());
+            if (!toNeuronExists) {
+                System.err.println("Neuron " + gene1.getToNode() + " does not exist!");
+                error.set(true);
+            }
+            if (!fromNeuronExists) {
+                System.err.println("Neuron " + gene1.getFromNode() + " does not exist!");
+                error.set(true);
+            }
+        }
+
+        if (error.get())
+            throw new Error();
     }
 
     public NeuronGene getNeuronGene(int neuronID) {
