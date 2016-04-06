@@ -5,7 +5,10 @@ import org.javaneat.genome.NEATGenome;
 import org.javaneat.genome.NeuronType;
 import org.jnsgaii.operators.Mutator;
 
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * Created by Mitchell on 3/24/2016.
@@ -19,12 +22,17 @@ public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
     @SuppressWarnings("AssignmentToMethodParameter")
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
+        Random r = ThreadLocalRandom.current();
+
         NEATGenome newObject = object.copy();
 
-        while (ThreadLocalRandom.current().nextDouble() <= mutationStrength) {
+        while (r.nextDouble() <= mutationStrength) {
             mutationStrength--; // If strength is 1.5, 100% chance to remove first time, 50% second, 0% final check.
             if (newObject.getConnectionGeneList().size() > 0) {
-                ConnectionGene removed = newObject.getConnectionGeneList().remove(ThreadLocalRandom.current().nextInt(newObject.getConnectionGeneList().size()));
+
+                List<ConnectionGene> potentialGenes = newObject.getConnectionGeneList().stream().filter(ConnectionGene::getEnabled).collect(Collectors.toList()); // Only remove enabled genes
+                ConnectionGene removed = potentialGenes.get(r.nextInt(potentialGenes.size()));
+                newObject.getConnectionGeneList().remove(removed);
 
                 boolean toNeuronOrphaned = true;
                 boolean fromNeuronOrphaned = true;

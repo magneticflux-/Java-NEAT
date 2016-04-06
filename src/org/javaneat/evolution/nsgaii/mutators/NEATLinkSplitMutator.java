@@ -1,20 +1,21 @@
 package org.javaneat.evolution.nsgaii.mutators;
 
-import org.javaneat.genome.*;
+import org.javaneat.genome.ConnectionGene;
+import org.javaneat.genome.NEATGenome;
+import org.javaneat.genome.NEATInnovation;
+import org.javaneat.genome.NeuronGene;
+import org.javaneat.genome.NeuronType;
 import org.jnsgaii.operators.Mutator;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  * Created by Mitchell on 3/24/2016.
  */
 public class NEATLinkSplitMutator extends Mutator<NEATGenome> {
-
-    private static final Logger log = Logger.getLogger("NEATLinkSplitMutator");
 
     @Override
     public String[] getAspectDescriptions() {
@@ -54,9 +55,20 @@ public class NEATLinkSplitMutator extends Mutator<NEATGenome> {
         }
         */
 
-        newObject.getNeuronGeneList().add(insertedNeuron);
-        newObject.getConnectionGeneList().add(leftConnection);
-        newObject.getConnectionGeneList().add(rightConnection);
+        if (newObject.getNeuronGeneList().contains(insertedNeuron)
+                || newObject.getConnectionGeneList().contains(leftConnection)
+                || newObject.getConnectionGeneList().contains(rightConnection)) {
+            System.err.println("Split of\n\t"
+                    + replaced
+                    + "\nduplicated a gene\n"
+                    + insertedNeuron + leftConnection + rightConnection
+                    + "\non "
+                    + newObject);
+        } else {
+            newObject.getNeuronGeneList().add(insertedNeuron);
+            newObject.getConnectionGeneList().add(leftConnection);
+            newObject.getConnectionGeneList().add(rightConnection);
+        }
 
         newObject.sortGenes();
         newObject.verifyGenome();
