@@ -17,8 +17,8 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable, Se
         innovationID = -1;
     }
 
-    public ConnectionGene(ConnectionGene other) {
-        this(other.fromNode, other.toNode, other.innovationID, other.weight, other.enabled);
+    public ConnectionGene(ConnectionGene other, boolean enabled) {
+        this(other.fromNode, other.toNode, other.innovationID, other.weight, enabled);
     }
 
     public ConnectionGene(int fromNode, int toNode, int innovationID, double weight, boolean enabled) // Immutable-ish
@@ -28,6 +28,10 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable, Se
         this.innovationID = innovationID;
         this.weight = weight;
         this.enabled = enabled;
+    }
+
+    public ConnectionGene(ConnectionGene other) {
+        this(other.fromNode, other.toNode, other.innovationID, other.weight, other.enabled);
     }
 
     public int getInnovationID() {
@@ -59,6 +63,11 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable, Se
     }
 
     @Override
+    public int hashCode() {
+        return innovationID;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -69,9 +78,12 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable, Se
 
     }
 
-    @Override
-    public int hashCode() {
-        return innovationID;
+    public ConnectionGene clone() {
+        try {
+            return (ConnectionGene) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String toString() {
@@ -80,13 +92,5 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable, Se
 
     public int compareTo(ConnectionGene o) {
         return Integer.compare(this.innovationID, o.innovationID);
-    }
-
-    public ConnectionGene clone() {
-        try {
-            return (ConnectionGene) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
