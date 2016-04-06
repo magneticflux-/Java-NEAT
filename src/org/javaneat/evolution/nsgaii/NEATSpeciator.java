@@ -54,6 +54,9 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
         genome1.sortGenes();
         genome2.sortGenes();
 
+        genome1.verifyGenome();
+        genome2.verifyGenome();
+
         List<ConnectionGene> genome1Genes = genome1.getConnectionGeneList();
         List<ConnectionGene> genome2Genes = genome2.getConnectionGeneList();
 

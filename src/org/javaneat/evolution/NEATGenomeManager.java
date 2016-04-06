@@ -2,6 +2,7 @@ package org.javaneat.evolution;
 
 import org.javaneat.genome.InnovationKey;
 import org.javaneat.genome.NEATInnovation;
+import org.javaneat.genome.NeuronType;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -85,7 +86,6 @@ public class NEATGenomeManager implements Serializable {
             this.acquireNodeInnovation(this.getNewNeuronID()); // Outputs
     }
 
-
     public NEATGenomeManager(int numInputs, int numOutputs) {
         this(numInputs, numOutputs, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
@@ -100,6 +100,17 @@ public class NEATGenomeManager implements Serializable {
 
     private static InnovationKey getSplitKey(final int fromNode, final int toNode) {
         return new InnovationKey(InnovationKey.InnovationType.SPLIT, fromNode, toNode);
+    }
+
+    public NeuronType getNeuronType(int neuronID) {
+        if (neuronID == 0)
+            return NeuronType.BIAS;
+        else if (neuronID < 1 + numInputs)
+            return NeuronType.INPUT;
+        else if (neuronID < 1 + numInputs + numOutputs)
+            return NeuronType.OUTPUT;
+        else
+            return NeuronType.HIDDEN;
     }
 
     private int getNewInnovationID() {
@@ -136,7 +147,7 @@ public class NEATGenomeManager implements Serializable {
     public int getNewNeuronID() {
         int result = this.globalNeuronID;
         this.globalNeuronID++;
-        System.out.println("Global neuron ID is now: " + globalNeuronID);
+        //System.out.println("Global neuron ID is now: " + globalNeuronID);
         return result;
     }
 
@@ -145,7 +156,7 @@ public class NEATGenomeManager implements Serializable {
         InnovationKey key = NEATGenomeManager.getNodeKey(nodeID);
         if (!this.innovations.containsKey(key)) {
             this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), nodeID));
-            System.out.println("Created node innovation " + this.innovations.get(key));
+            //System.out.println("Created node innovation " + this.innovations.get(key));
         }
         return this.innovations.get(key);
     }
@@ -155,7 +166,7 @@ public class NEATGenomeManager implements Serializable {
         InnovationKey key = NEATGenomeManager.getLinkKey(fromNode, toNode);
         if (!this.innovations.containsKey(key)) {
             this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), fromNode, toNode));
-            System.out.println("Created link innovation " + this.innovations.get(key));
+            //System.out.println("Created link innovation " + this.innovations.get(key));
         }
         return this.innovations.get(key);
     }
@@ -164,10 +175,10 @@ public class NEATGenomeManager implements Serializable {
     {
         InnovationKey key = NEATGenomeManager.getSplitKey(fromNode, toNode);
         if (!this.innovations.containsKey(key)) {
-            this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), this.getNewNeuronID()));
-            System.out.println("Created split innovation " + this.innovations.get(key));
+            this.innovations.put(key, new NEATInnovation(this.getNewInnovationID(), this.getNewNeuronID(), fromNode, toNode));
+            //System.out.println("Created split innovation " + this.innovations.get(key));
         } else {
-            System.out.println("Found split innovation " + this.innovations.get(key));
+            //System.out.println("Found split innovation " + this.innovations.get(key));
         }
         return this.innovations.get(key);
     }

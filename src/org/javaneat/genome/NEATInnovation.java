@@ -25,8 +25,8 @@ public class NEATInnovation implements Serializable {
     public NEATInnovation(int innovationID, int neuronID, int fromNeuron, int toNeuron) {
         this.innovationID = innovationID;
         this.neuronID = neuronID;
-        this.toNeuron = toNeuron;
         this.fromNeuron = fromNeuron;
+        this.toNeuron = toNeuron;
     }
 
     public int getInnovationID() {

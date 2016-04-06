@@ -1,5 +1,6 @@
 package org.javaneat.evolution.nsgaii.mutators;
 
+import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
 import org.jnsgaii.operators.Mutator;
 
@@ -20,6 +21,7 @@ public class NEATWeightMutator extends Mutator<NEATGenome> {
         NEATGenome newObject = object.copy();
 
         newObject.getConnectionGeneList().stream()
+                .filter(ConnectionGene::getEnabled)
                 .filter(gene -> ThreadLocalRandom.current().nextDouble() < mutationProbability)
                 .forEach(gene -> gene.setWeight(gene.getWeight() + (ThreadLocalRandom.current().nextDouble() * 2 - 1) * mutationStrength));
 

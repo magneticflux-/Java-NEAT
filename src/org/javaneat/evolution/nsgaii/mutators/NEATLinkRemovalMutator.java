@@ -2,6 +2,7 @@ package org.javaneat.evolution.nsgaii.mutators;
 
 import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
+import org.javaneat.genome.NeuronType;
 import org.jnsgaii.operators.Mutator;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,7 +20,6 @@ public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
         NEATGenome newObject = object.copy();
-        newObject.marioBrosData = null;
 
         while (ThreadLocalRandom.current().nextDouble() <= mutationStrength) {
             mutationStrength--; // If strength is 1.5, 100% chance to remove first time, 50% second, 0% final check.
@@ -35,7 +35,7 @@ public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
 
                 final boolean finalToNeuronOrphaned = toNeuronOrphaned;
                 final boolean finalFromNeuronOrphaned = fromNeuronOrphaned;
-                newObject.getNeuronGeneList().removeIf(neuronGene -> (finalToNeuronOrphaned && neuronGene.getNeuronID() == removed.getToNode()) || (finalFromNeuronOrphaned && neuronGene.getNeuronID() == removed.getFromNode()));
+                newObject.getNeuronGeneList().removeIf(neuronGene -> neuronGene.getNeuronType() == NeuronType.HIDDEN && ((finalToNeuronOrphaned && neuronGene.getNeuronID() == removed.getToNode()) || (finalFromNeuronOrphaned && neuronGene.getNeuronID() == removed.getFromNode())));
             }
         }
 

@@ -52,6 +52,7 @@ public class NEATGenome implements Serializable
         this.addInitialNodes();
         this.addRandomFirstLink(rng);
         this.sortGenes();
+        this.verifyGenome();
     }
 
     private void addInitialNodes() {
@@ -63,10 +64,11 @@ public class NEATGenome implements Serializable
     }
 
     private void addRandomFirstLink(final Random rng) {
-        final int inputIndex = rng.nextInt(manager.getNumInputs() + 1); // Bias + Inputs considered
-        final int outputIndex = rng.nextInt(manager.getNumOutputs()) + manager.getOutputOffset(); // Only Outputs considered
-        final NEATInnovation link = this.manager.acquireLinkInnovation(inputIndex, outputIndex);
-        this.connectionGeneList.add(new ConnectionGene(inputIndex, outputIndex, link.getInnovationID(), 1, true));
+        int toNode = rng.nextInt(manager.getNumOutputs()) + manager.getOutputOffset(); // Only Outputs considered
+        int fromNode = rng.nextInt(manager.getNumInputs() + 1); // Bias + Inputs considered
+
+        NEATInnovation link = this.manager.acquireLinkInnovation(toNode, fromNode);
+        this.connectionGeneList.add(new ConnectionGene(toNode, fromNode, link.getInnovationID(), 1, true));
     }
 
     public void sortGenes() {
@@ -76,6 +78,16 @@ public class NEATGenome implements Serializable
 
     public void verifyGenome() {
         AtomicBoolean error = new AtomicBoolean(false);
+
+        if (connectionGeneList.size() < 1) {
+            System.err.println("No connection genes!");
+            error.set(true);
+        }
+
+        if (neuronGeneList.size() < 1) {
+            System.err.println("No neuron genes!");
+            error.set(true);
+        }
 
         for (ConnectionGene gene1 : connectionGeneList) {
             connectionGeneList.stream().filter(gene2 -> gene1 != gene2 && gene1.equals(gene2)).forEach(gene2 -> {
@@ -95,8 +107,12 @@ public class NEATGenome implements Serializable
             }
         }
 
-        if (error.get())
+        if (error.get()) {
+            System.out.println("Genome connections: " + this.connectionGeneList);
+            System.out.println("Genome neurons: " + this.neuronGeneList);
+            System.out.println("Genome: " + this);
             throw new Error();
+        }
     }
 
     public NeuronGene getNeuronGene(int neuronID) {

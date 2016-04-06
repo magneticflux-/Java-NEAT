@@ -29,7 +29,7 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
         NEATGenome newObject = object.copy();
         newObject.marioBrosData = null;
 
-        log.info("Mutating " + newObject);
+        //log.info("Mutating " + newObject);
 
         List<PossibleLink> possibleLinks = new ArrayList<>();
         for (NeuronGene neuronGene1 : newObject.getNeuronGeneList()) { // Add everything
@@ -39,14 +39,14 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
                 || newObject.getConnectionGeneList().parallelStream()
                 .anyMatch(connectionGene -> possibleLink.fromNode == connectionGene.getFromNode() && possibleLink.toNode == connectionGene.getToNode()));
 
-        log.info("Found " + possibleLinks.size() + " possible links...");
+        //log.info("Found " + possibleLinks.size() + " possible links...");
 
         if (possibleLinks.size() > 0) {
             PossibleLink chosenLink = possibleLinks.get(ThreadLocalRandom.current().nextInt(possibleLinks.size()));
 
             ConnectionGene gene = new ConnectionGene(chosenLink.fromNode, chosenLink.toNode, newObject.getManager().acquireLinkInnovation(chosenLink.fromNode, chosenLink.toNode).getInnovationID(), Mutator.mutate(0, ThreadLocalRandom.current(), mutationStrength), true);
 
-            log.info("Created ConnectionGene " + gene);
+            //log.info("Created ConnectionGene " + gene);
 
             /*
             if (newObject.getConnectionGeneList().stream().anyMatch(connectionGene -> connectionGene.getInnovationID() == gene.getInnovationID())) {
