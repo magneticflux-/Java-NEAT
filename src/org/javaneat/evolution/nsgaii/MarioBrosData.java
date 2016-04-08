@@ -61,7 +61,16 @@ public class MarioBrosData implements Serializable {
 
         @Override
         public String toString() {
-            return String.format("%d %d %d %d %d %d %d %d", score, time, world, level, lives, marioX, marioY, marioState);
+            return "DataPoint{" +
+                    "score=" + score +
+                    ", time=" + time +
+                    ", world=" + world +
+                    ", level=" + level +
+                    ", lives=" + lives +
+                    ", marioX=" + marioX +
+                    ", marioY=" + marioY +
+                    ", marioState=" + marioState +
+                    '}';
         }
 
         @SuppressWarnings("SimplifiableIfStatement")
