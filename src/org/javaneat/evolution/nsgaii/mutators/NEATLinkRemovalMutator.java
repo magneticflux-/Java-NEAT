@@ -28,7 +28,7 @@ public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
 
         while (r.nextDouble() <= mutationStrength) {
             mutationStrength--; // If strength is 1.5, 100% chance to remove first time, 50% second, 0% final check.
-            if (newObject.getConnectionGeneList().size() > 0) {
+            if (newObject.getConnectionGeneList().size() > 1) { // Prevent the last connection from being removed
 
                 List<ConnectionGene> potentialGenes = newObject.getConnectionGeneList().stream().filter(ConnectionGene::getEnabled).collect(Collectors.toList()); // Only remove enabled genes
                 ConnectionGene removed = potentialGenes.get(r.nextInt(potentialGenes.size()));
