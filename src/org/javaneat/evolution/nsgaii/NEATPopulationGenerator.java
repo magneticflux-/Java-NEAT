@@ -20,14 +20,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> {
 
     private final Source source;
-    private final Collection<NEATGenome> seed;
+    private final Collection<Individual<NEATGenome>> seed;
 
     public NEATPopulationGenerator() {
         this.source = Source.RANDOM;
         this.seed = new ArrayList<>();
     }
 
-    public NEATPopulationGenerator(Collection<NEATGenome> seed) {
+    public NEATPopulationGenerator(Collection<Individual<NEATGenome>> seed) {
         this.seed = new ArrayList<>(seed);
         this.source = Source.SEEDED;
     }
@@ -52,9 +52,10 @@ public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> 
                 }
                 break;
             case SEEDED:
-                Iterator<NEATGenome> iterator = seed.iterator();
+                Iterator<Individual<NEATGenome>> iterator = seed.iterator();
                 for (int i = 0; i < num; i++) {
-                    population.add(new Individual<>(new NEATGenome(iterator.next()), defaultAspects));
+                    Individual<NEATGenome> next = iterator.next();
+                    population.add(new Individual<>(new NEATGenome(next.getIndividual()), next.aspects));
 
                     if (!iterator.hasNext()) { // Reset to the beginning
                         iterator = seed.iterator();
