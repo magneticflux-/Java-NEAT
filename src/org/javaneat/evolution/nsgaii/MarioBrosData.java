@@ -59,6 +59,10 @@ public class MarioBrosData implements Serializable {
             this.marioState = marioState;
         }
 
+        public DataPoint(DataPoint dataPoint) {
+            this(dataPoint.score, dataPoint.time, dataPoint.world, dataPoint.level, dataPoint.lives, dataPoint.marioX, dataPoint.marioY, dataPoint.marioState);
+        }
+
         @Override
         public String toString() {
             return "DataPoint{" +
