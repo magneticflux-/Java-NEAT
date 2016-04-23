@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class NEATGenome implements Serializable
 // Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
 {
+    private static final boolean DEBUG_ENABLED = false;
     private final List<ConnectionGene> connectionGeneList;
     private final List<NeuronGene> neuronGeneList;
     @Nullable
@@ -77,41 +78,43 @@ public class NEATGenome implements Serializable
     }
 
     public void verifyGenome() {
-        AtomicBoolean error = new AtomicBoolean(false);
+        if (DEBUG_ENABLED) {
+            AtomicBoolean error = new AtomicBoolean(false);
 
-        if (connectionGeneList.size() < 1) {
-            System.err.println("No connection genes!");
-            error.set(true);
-        }
-
-        if (neuronGeneList.size() < 1) {
-            System.err.println("No neuron genes!");
-            error.set(true);
-        }
-
-        for (ConnectionGene gene1 : connectionGeneList) {
-            connectionGeneList.stream().filter(gene2 -> gene1 != gene2 && gene1.equals(gene2)).forEach(gene2 -> {
-                System.err.println("Duplicate gene " + gene1);
-                error.set(true);
-            });
-
-            boolean toNeuronExists = neuronGeneList.stream().anyMatch(neuronGene -> neuronGene.getNeuronID() == gene1.getToNode());
-            boolean fromNeuronExists = neuronGeneList.stream().anyMatch(neuronGene -> neuronGene.getNeuronID() == gene1.getFromNode());
-            if (!toNeuronExists) {
-                System.err.println("Neuron " + gene1.getToNode() + " does not exist!");
+            if (connectionGeneList.size() < 1) {
+                System.err.println("No connection genes!");
                 error.set(true);
             }
-            if (!fromNeuronExists) {
-                System.err.println("Neuron " + gene1.getFromNode() + " does not exist!");
+
+            if (neuronGeneList.size() < 1) {
+                System.err.println("No neuron genes!");
                 error.set(true);
             }
-        }
 
-        if (error.get()) {
-            System.out.println("Genome connections: " + this.connectionGeneList);
-            System.out.println("Genome neurons: " + this.neuronGeneList);
-            System.out.println("Genome: " + this);
-            throw new Error();
+            for (ConnectionGene gene1 : connectionGeneList) {
+                connectionGeneList.stream().filter(gene2 -> gene1 != gene2 && gene1.equals(gene2)).forEach(gene2 -> {
+                    System.err.println("Duplicate gene " + gene1);
+                    error.set(true);
+                });
+
+                boolean toNeuronExists = neuronGeneList.stream().anyMatch(neuronGene -> neuronGene.getNeuronID() == gene1.getToNode());
+                boolean fromNeuronExists = neuronGeneList.stream().anyMatch(neuronGene -> neuronGene.getNeuronID() == gene1.getFromNode());
+                if (!toNeuronExists) {
+                    System.err.println("Neuron " + gene1.getToNode() + " does not exist!");
+                    error.set(true);
+                }
+                if (!fromNeuronExists) {
+                    System.err.println("Neuron " + gene1.getFromNode() + " does not exist!");
+                    error.set(true);
+                }
+            }
+
+            if (error.get()) {
+                System.out.println("Genome connections: " + this.connectionGeneList);
+                System.out.println("Genome neurons: " + this.neuronGeneList);
+                System.out.println("Genome: " + this);
+                throw new Error();
+            }
         }
     }
 
