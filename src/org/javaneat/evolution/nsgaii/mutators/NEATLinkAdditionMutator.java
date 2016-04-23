@@ -33,11 +33,10 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
 
         List<PossibleLink> possibleLinks = new ArrayList<>();
         for (NeuronGene neuronGene1 : newObject.getNeuronGeneList()) { // Add everything
-            possibleLinks.addAll(newObject.getNeuronGeneList().parallelStream().map(neuronGene2 -> new PossibleLink(neuronGene1.getNeuronID(), neuronGene2.getNeuronID())).collect(Collectors.toList()));
+            possibleLinks.addAll(newObject.getNeuronGeneList().stream().map(neuronGene2 -> new PossibleLink(neuronGene1.getNeuronID(), neuronGene2.getNeuronID())).collect(Collectors.toList()));
         }
         possibleLinks.removeIf(possibleLink -> possibleLink.toNode < newObject.getManager().getOutputOffset() // Input or bias
-                || newObject.getConnectionGeneList().parallelStream()
-                .anyMatch(connectionGene -> possibleLink.fromNode == connectionGene.getFromNode() && possibleLink.toNode == connectionGene.getToNode()));
+                || newObject.getConnectionGeneList().stream().anyMatch(connectionGene -> possibleLink.fromNode == connectionGene.getFromNode() && possibleLink.toNode == connectionGene.getToNode()));
 
         //log.info("Found " + possibleLinks.size() + " possible links...");
 
