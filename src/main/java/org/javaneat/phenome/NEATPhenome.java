@@ -6,9 +6,11 @@ import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
 import org.javaneat.genome.NeuronGene;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class NEATPhenome {
     private final NEATGenomeManager manager;
@@ -34,16 +36,10 @@ public class NEATPhenome {
                 .collect(Collectors.toList());
     }
 
-    private static double activationFunction(double x) {
-        return FastMath.tanh(x);
-    }
-
     public void resetInternalState() {
         assert this.preActivation.length == this.postActivation.length : "Irregular neuron arrays. Malformed phenome.";
-        for (int i = 0; i < this.preActivation.length; i++) {
-            this.preActivation[i] = 0;
-            this.postActivation[i] = 0;
-        }
+        Arrays.fill(this.preActivation, 0);
+        Arrays.fill(this.postActivation, 0);
     }
 
     public double[] stepTime(double[] inputs, int numActivations) {
@@ -60,19 +56,25 @@ public class NEATPhenome {
         this.postActivation[0] = 1;
         System.arraycopy(inputs, 0, this.postActivation, this.manager.getInputOffset(), this.manager.getNumInputs()); // Setting bias and inputs
 
-        for (NEATConnection connection : this.connectionList) // Adding up all connections
-        {
-            this.preActivation[connection.getToIndex()] += this.postActivation[connection.getFromIndex()] * connection.getWeight();
-        }
+        // Adding up all connections
+        //noinspection NestedAssignment
+        this.connectionList.stream()
+                .forEach(neatConnection -> NEATPhenome.this.preActivation[neatConnection.getToIndex()] += NEATPhenome.this.postActivation[neatConnection.getFromIndex()] * neatConnection.getWeight());
 
-        for (int i = 0; i < this.preActivation.length; i++) {
-            this.postActivation[i] = NEATPhenome.activationFunction(this.preActivation[i]);
-            this.preActivation[i] = 0;
-        }
+        IntStream.range(0, this.preActivation.length)
+                .forEach(i ->
+                {
+                    this.postActivation[i] = NEATPhenome.activationFunction(this.preActivation[i]);
+                    this.preActivation[i] = 0;
+                });
 
         double[] output = new double[this.manager.getNumOutputs()];
         System.arraycopy(this.postActivation, this.manager.getOutputOffset(), output, 0, this.manager.getNumOutputs()); // Getting outputs
 
         return output;
+    }
+
+    private static double activationFunction(double x) {
+        return FastMath.tanh(x);
     }
 }
