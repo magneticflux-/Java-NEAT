@@ -1,10 +1,6 @@
 package org.javaneat.evolution.nsgaii.mutators;
 
-import org.javaneat.genome.ConnectionGene;
-import org.javaneat.genome.NEATGenome;
-import org.javaneat.genome.NEATInnovation;
-import org.javaneat.genome.NeuronGene;
-import org.javaneat.genome.NeuronType;
+import org.javaneat.genome.*;
 import org.jnsgaii.operators.Mutator;
 
 import java.util.List;

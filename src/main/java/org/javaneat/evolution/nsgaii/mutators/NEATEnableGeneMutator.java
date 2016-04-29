@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 /**
  * Created by Mitchell on 3/24/2016.
- *
+ * <p>
  * DO NOT USE! Breaks NEAT because splitting nodes relies on connections staying disabled
  */
 @Deprecated
