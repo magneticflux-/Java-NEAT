@@ -26,6 +26,22 @@ public class MarioBrosData implements Serializable {
 
     }
 
+    public int getMaxDistance() {
+        return dataPoints.stream().mapToInt(dataPoint -> dataPoint.marioX).max().orElseThrow(Error::new);
+    }
+
+    public int getLastDistance() {
+        return dataPoints.get(dataPoints.size() - 1).marioX;
+    }
+
+    public int getLastScore() {
+        return dataPoints.get(dataPoints.size() - 1).score;
+    }
+
+    public int getMaxScore() {
+        return dataPoints.stream().mapToInt(dataPoint -> dataPoint.score).max().orElseThrow(Error::new);
+    }
+
     @Override
     public int hashCode() {
         return dataPoints.hashCode();

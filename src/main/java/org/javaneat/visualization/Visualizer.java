@@ -41,7 +41,7 @@ public final class Visualizer {
         FRLayout<Integer, Edge> layout = new FRLayout<>(graph);
         layout.setSize(new Dimension(400, 200));
 
-        layout.setRepulsionMultiplier(.5);
+        layout.setRepulsionMultiplier(1);
         layout.setAttractionMultiplier(5);
 
         if (squareInputs) {
