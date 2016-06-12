@@ -27,7 +27,6 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
     @Override
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
         NEATGenome newObject = object.copy();
-        newObject.marioBrosData = null;
 
         //log.info("Mutating " + newObject);
 

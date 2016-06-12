@@ -36,10 +36,18 @@ public class NEATPhenome {
                 .collect(Collectors.toList());
     }
 
+    private static double activationFunction(double x) {
+        return FastMath.tanh(x);
+    }
+
     public void resetInternalState() {
         assert this.preActivation.length == this.postActivation.length : "Irregular neuron arrays. Malformed phenome.";
         Arrays.fill(this.preActivation, 0);
         Arrays.fill(this.postActivation, 0);
+    }
+
+    public List<NEATConnection> getConnectionList() {
+        return connectionList;
     }
 
     public double[] stepTime(double[] inputs, int numActivations) {
@@ -72,9 +80,5 @@ public class NEATPhenome {
         System.arraycopy(this.postActivation, this.manager.getOutputOffset(), output, 0, this.manager.getNumOutputs()); // Getting outputs
 
         return output;
-    }
-
-    private static double activationFunction(double x) {
-        return FastMath.tanh(x);
     }
 }

@@ -29,7 +29,7 @@ public final class Visualizer {
     private Visualizer() {
     }
 
-    public static BufferedImage getImage(boolean squareInputs, int squareLength, int outputNum, NEATGenome genome) {
+    public static FRLayout<Integer, Edge> getLayout(boolean squareInputs, int squareLength, int outputNum, NEATGenome genome) {
 
         Graph<Integer, Edge> graph = Graphs.synchronizedDirectedGraph(new DirectedSparseMultigraph<>());
 
@@ -39,7 +39,8 @@ public final class Visualizer {
                 .forEach(connectionGene -> graph.addEdge(new Edge(connectionGene), connectionGene.getFromNode(), connectionGene.getToNode()));
 
         FRLayout<Integer, Edge> layout = new FRLayout<>(graph);
-        layout.setSize(new Dimension(400, 200));
+        layout.setMaxIterations(1000);
+        layout.setSize(new Dimension(800, 600));
 
         layout.setRepulsionMultiplier(1);
         layout.setAttractionMultiplier(5);
@@ -67,6 +68,17 @@ public final class Visualizer {
         }
 
         layout.initialize();
+
+        if (layout.isIncremental())
+            while (!layout.done())
+                layout.step();
+
+        return layout;
+    }
+
+    public static BufferedImage getImage(boolean squareInputs, int squareLength, int outputNum, NEATGenome genome) {
+
+        FRLayout<Integer, Edge> layout = getLayout(squareInputs, squareLength, outputNum, genome);
 
         VisualizationViewer<Integer, Edge> vv = new VisualizationViewer<>(layout, new Dimension(400, 200));
         PredicatedParallelEdgeIndexFunction<Integer, Edge> predicatedParallelEdgeIndexFunction = PredicatedParallelEdgeIndexFunction.getInstance();
@@ -107,11 +119,15 @@ public final class Visualizer {
         return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
     }
 
-    private static class Edge {
-        final double weight;
+    public static class Edge {
+        public final double weight;
+        public final int fromNode;
+        public final int toNode;
 
         Edge(ConnectionGene connectionGene) {
             this.weight = connectionGene.getWeight();
+            this.fromNode = connectionGene.getFromNode();
+            this.toNode = connectionGene.getToNode();
         }
 
         @Override

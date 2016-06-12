@@ -34,7 +34,7 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
     }
 
     @Override
-    protected double getDistance(Individual<NEATGenome> individual, Individual<NEATGenome> individual2) {
+    public double getDistance(Individual<NEATGenome> individual, Individual<NEATGenome> individual2) {
         return getGenomeDistance(individual, individual2);
     }
 

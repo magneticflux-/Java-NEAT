@@ -13,6 +13,7 @@ import org.javaneat.phenome.NEATPhenome;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+@SuppressWarnings("Duplicates")
 public class TestDemo {
     @SuppressWarnings("MagicNumber")
     public static void main(String[] args) throws InterruptedException {

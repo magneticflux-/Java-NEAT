@@ -1,8 +1,6 @@
 package org.javaneat.genome;
 
 import org.javaneat.evolution.NEATGenomeManager;
-import org.javaneat.evolution.nsgaii.MarioBrosData;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,8 +16,6 @@ public class NEATGenome implements Serializable
     private static final boolean DEBUG_ENABLED = false;
     private final List<ConnectionGene> connectionGeneList;
     private final List<NeuronGene> neuronGeneList;
-    @Nullable
-    public MarioBrosData marioBrosData;
     private NEATSpecies species;
     private double score;
     private NEATGenomeManager manager;
