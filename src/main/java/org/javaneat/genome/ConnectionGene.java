@@ -2,7 +2,7 @@ package org.javaneat.genome;
 
 import java.io.Serializable;
 
-public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable, Serializable {
+public class ConnectionGene implements Comparable<ConnectionGene>, Serializable {
     private final int innovationID;
     private final int fromNode;
     private final int toNode;
@@ -76,14 +76,6 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Cloneable, Se
 
         return innovationID == that.innovationID;
 
-    }
-
-    public ConnectionGene clone() {
-        try {
-            return (ConnectionGene) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public String toString() {

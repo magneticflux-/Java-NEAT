@@ -1,117 +1,73 @@
 package org.javaneat.genome;
 
-import org.javaneat.evolution.NEATGenomeManager;
+import org.javaneat.evolution.NEATInnovationMap;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class NEATGenome implements Serializable
 // Node placement in array of each genome/phenome: [1 bias][numInputs input nodes][numOutputs output nodes][Variable hidden nodes]
 {
-    private static final boolean DEBUG_ENABLED = false;
     private final List<ConnectionGene> connectionGeneList;
     private final List<NeuronGene> neuronGeneList;
-    private NEATSpecies species;
-    private double score;
-    private NEATGenomeManager manager;
+    private final int numInputs;
+    private final int numOutputs;
 
     public NEATGenome(final NEATGenome other) {
         this(
                 other.connectionGeneList.stream().map(ConnectionGene::new).collect(Collectors.toList()),
                 other.neuronGeneList.stream().map(NeuronGene::new).collect(Collectors.toList()),
-                other.manager);
+                other.numInputs, other.numOutputs);
     }
 
-    public NEATGenome(final List<ConnectionGene> connections, final List<NeuronGene> neurons, final NEATGenomeManager manager) {
-        this.manager = manager;
+    public NEATGenome(final List<ConnectionGene> connections, final List<NeuronGene> neurons, int numInputs, int numOutputs) {
         this.connectionGeneList = new ArrayList<>(connections);
         this.neuronGeneList = new ArrayList<>(neurons);
+        this.numInputs = numInputs;
+        this.numOutputs = numOutputs;
     }
 
-    @SuppressWarnings({"unused", "AssignmentToNull"})
+    @SuppressWarnings("unused")
     private NEATGenome() // This is to serialize properly
     {
-        this.connectionGeneList = new ArrayList<>();
-        this.neuronGeneList = new ArrayList<>();
-        this.manager = null;
+        this(new ArrayList<>(), new ArrayList<>(), -1, -1);
     }
 
-    public NEATGenome(final Random rng, final NEATGenomeManager manager) {
-        this.manager = manager;
+    public NEATGenome(Random rng, int numInputs, int numOutputs, NEATInnovationMap neatInnovationMap) {
+        this.numInputs = numInputs;
+        this.numOutputs = numOutputs;
+
         this.connectionGeneList = new ArrayList<>(1);
-        this.neuronGeneList = new ArrayList<>(this.manager.getNumInputs() + this.manager.getNumOutputs() + 1);
+        this.neuronGeneList = new ArrayList<>(numInputs + numOutputs + 1);
 
-        this.addInitialNodes();
-        this.addRandomFirstLink(rng);
+        this.addInitialNodes(neatInnovationMap);
+        this.addRandomFirstLink(rng, neatInnovationMap);
         this.sortGenes();
-        this.verifyGenome();
     }
 
-    private void addInitialNodes() {
-        this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(), NeuronType.BIAS));
-        for (int i = 0; i < manager.getNumInputs(); i++)
-            this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(), NeuronType.INPUT));
-        for (int i = 0; i < manager.getNumOutputs(); i++)
-            this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), this.manager.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(), NeuronType.OUTPUT));
+    private void addInitialNodes(NEATInnovationMap neatInnovationMap) {
+        this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), neatInnovationMap.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(), NeuronType.BIAS));
+        for (int i = 0; i < numInputs; i++)
+            this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), neatInnovationMap.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(), NeuronType.INPUT));
+        for (int i = 0; i < numOutputs; i++)
+            this.neuronGeneList.add(new NeuronGene(this.neuronGeneList.size(), neatInnovationMap.acquireNodeInnovation(this.neuronGeneList.size()).getInnovationID(), NeuronType.OUTPUT));
     }
 
-    private void addRandomFirstLink(final Random rng) {
-        int toNode = rng.nextInt(manager.getNumOutputs()) + manager.getOutputOffset(); // Only Outputs considered
-        int fromNode = rng.nextInt(manager.getNumInputs() + 1); // Bias + Inputs considered
+    private void addRandomFirstLink(Random rng, NEATInnovationMap neatInnovationMap) {
+        int toNode = rng.nextInt(numOutputs) + numInputs + 1; // Only Outputs considered
+        int fromNode = rng.nextInt(numInputs + 1); // Bias + Inputs considered
 
-        NEATInnovation link = this.manager.acquireLinkInnovation(toNode, fromNode);
+        NEATInnovation link = neatInnovationMap.acquireLinkInnovation(toNode, fromNode);
         this.connectionGeneList.add(new ConnectionGene(toNode, fromNode, link.getInnovationID(), 1, true));
     }
 
     public void sortGenes() {
         Collections.sort(this.connectionGeneList);
         Collections.sort(this.neuronGeneList);
-    }
-
-    public void verifyGenome() {
-        if (DEBUG_ENABLED) {
-            AtomicBoolean error = new AtomicBoolean(false);
-
-            if (connectionGeneList.size() < 1) {
-                System.err.println("No connection genes!");
-                error.set(true);
-            }
-
-            if (neuronGeneList.size() < 1) {
-                System.err.println("No neuron genes!");
-                error.set(true);
-            }
-
-            for (ConnectionGene gene1 : connectionGeneList) {
-                connectionGeneList.stream().filter(gene2 -> gene1 != gene2 && gene1.equals(gene2)).forEach(gene2 -> {
-                    System.err.println("Duplicate gene " + gene1);
-                    error.set(true);
-                });
-
-                boolean toNeuronExists = neuronGeneList.stream().anyMatch(neuronGene -> neuronGene.getNeuronID() == gene1.getToNode());
-                boolean fromNeuronExists = neuronGeneList.stream().anyMatch(neuronGene -> neuronGene.getNeuronID() == gene1.getFromNode());
-                if (!toNeuronExists) {
-                    System.err.println("Neuron " + gene1.getToNode() + " does not exist!");
-                    error.set(true);
-                }
-                if (!fromNeuronExists) {
-                    System.err.println("Neuron " + gene1.getFromNode() + " does not exist!");
-                    error.set(true);
-                }
-            }
-
-            if (error.get()) {
-                System.out.println("Genome connections: " + this.connectionGeneList);
-                System.out.println("Genome neurons: " + this.neuronGeneList);
-                System.out.println("Genome: " + this);
-                throw new Error();
-            }
-        }
     }
 
     public NeuronGene getNeuronGene(int neuronID) {
@@ -122,12 +78,35 @@ public class NEATGenome implements Serializable
         return null;
     }
 
-    public List<ConnectionGene> getConnectionGeneList() {
-        return this.connectionGeneList;
+    public int getNumInputs() {
+        return numInputs;
     }
 
-    public NEATGenomeManager getManager() {
-        return this.manager;
+    public int getNumOutputs() {
+        return numOutputs;
+    }
+
+    public int getInputOffset() {
+        return 1;
+    }
+
+    public int getOutputOffset() {
+        return 1 + this.getNumInputs();
+    }
+
+    public NeuronType getNeuronType(int neuronID) {
+        if (neuronID == 0)
+            return NeuronType.BIAS;
+        else if (neuronID < 1 + numInputs)
+            return NeuronType.INPUT;
+        else if (neuronID < 1 + numInputs + numOutputs)
+            return NeuronType.OUTPUT;
+        else
+            return NeuronType.HIDDEN;
+    }
+
+    public List<ConnectionGene> getConnectionGeneList() {
+        return this.connectionGeneList;
     }
 
     public List<NeuronGene> getNeuronGeneList() {
@@ -136,43 +115,7 @@ public class NEATGenome implements Serializable
 
     @Override
     public String toString() {
-        return "NEATGenome=[ConnectionGenes:" + this.connectionGeneList + ",NodeGenes:" + this.neuronGeneList + ",Manager:" + this.manager + "]";
-    }
-
-    /**
-     * @return the species
-     */
-    public NEATSpecies getSpecies() {
-        return species;
-    }
-
-    /**
-     * @param species the species to set
-     */
-    public void setSpecies(NEATSpecies species) {
-        this.species = species;
-    }
-
-    @Deprecated
-    public double getAdjustedScore() {
-        if (this.species != null && this.species.getMembers().size() != 0)
-            return this.getScore() / this.species.getMembers().size();
-        else
-            return this.getScore();
-    }
-
-    /**
-     * @return the score
-     */
-    public double getScore() {
-        return score >= 0 ? score : 0;
-    }
-
-    /**
-     * @param score the score to set
-     */
-    public void setScore(double score) {
-        this.score = score;
+        return "NEATGenome=[ConnectionGenes:" + this.connectionGeneList + ",NodeGenes:" + this.neuronGeneList + "]";
     }
 
     public NEATGenome copy() {

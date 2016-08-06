@@ -48,7 +48,6 @@ public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
         }
 
         newObject.sortGenes();
-        newObject.verifyGenome();
         return newObject;
     }
 }

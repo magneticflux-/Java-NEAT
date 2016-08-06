@@ -1,7 +1,6 @@
 package org.javaneat.evolution.nsgaii;
 
-import org.apache.commons.math3.util.FastMath;
-import org.javaneat.evolution.NEATGenomeManager;
+import org.javaneat.evolution.NEATInnovationMap;
 import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
@@ -19,8 +18,13 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Mitchell on 3/24/2016.
  */
 public class NEATRecombiner extends Recombiner<NEATGenome> {
+    private final NEATInnovationMap neatInnovationMap;
     private int numInputs;
     private int numOutputs;
+
+    public NEATRecombiner(NEATInnovationMap neatInnovationMap) {
+        this.neatInnovationMap = neatInnovationMap;
+    }
 
     private static NeuronGene getNeuron(int neuronID, NEATGenome best, NEATGenome notBest, Random rng) {
         NeuronGene output;
@@ -34,19 +38,17 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
         super.updateProperties(properties);
         numInputs = properties.getInt(NEATIntKey.INPUT_COUNT);
         numOutputs = properties.getInt(NEATIntKey.OUTPUT_COUNT);
+
+        System.out.println("Innovations: " + neatInnovationMap.size());
     }
 
     @Override
     protected NEATGenome crossover(NEATGenome parent1, NEATGenome parent2, double crossoverStrength, double crossoverProbability) {
         Random r = ThreadLocalRandom.current();
-        NEATGenomeManager manager = parent1.getManager();
 
-        parent1.sortGenes();
-        parent2.sortGenes();
-
-        int maxInnovationNumber = FastMath.max(
-                parent1.getConnectionGeneList().stream().mapToInt(ConnectionGene::getInnovationID).max().orElseThrow(() -> new Error("Failure to get max!")),
-                parent2.getConnectionGeneList().stream().mapToInt(ConnectionGene::getInnovationID).max().orElseThrow(() -> new Error("Failure to get max!")));
+        //int maxInnovationNumber = FastMath.max(
+        //        parent1.getConnectionGeneList().stream().mapToInt(ConnectionGene::getInnovationID).max().orElseThrow(() -> new Error("Failure to get max!")),
+        //        parent2.getConnectionGeneList().stream().mapToInt(ConnectionGene::getInnovationID).max().orElseThrow(() -> new Error("Failure to get max!")));
 
         ListIterator<ConnectionGene> parent1Iterator = parent1.getConnectionGeneList().listIterator();
         ListIterator<ConnectionGene> parent2Iterator = parent2.getConnectionGeneList().listIterator();
@@ -82,23 +84,22 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
 
         Collection<Integer> usedHiddenNeurons = new HashSet<>();
         newConnectionGenes.forEach(connectionGene -> {
-            if (manager.getNeuronType(connectionGene.getToNode()) == NeuronType.HIDDEN)
+            if (parent1.getNeuronType(connectionGene.getToNode()) == NeuronType.HIDDEN)
                 usedHiddenNeurons.add(connectionGene.getToNode());
-            if (manager.getNeuronType(connectionGene.getFromNode()) == NeuronType.HIDDEN)
+            if (parent1.getNeuronType(connectionGene.getFromNode()) == NeuronType.HIDDEN)
                 usedHiddenNeurons.add(connectionGene.getFromNode());
         });
 
         List<NeuronGene> newNeuronGenes = new ArrayList<>();
 
-        for (int i = 0; i < 1 + manager.getNumInputs() + parent2.getManager().getNumOutputs(); i++) {
-            newNeuronGenes.add(new NeuronGene(i, manager.acquireNodeInnovation(i).getInnovationID(), manager.getNeuronType(i)));
+        for (int i = 0; i < 1 + numInputs + numOutputs; i++) {
+            newNeuronGenes.add(new NeuronGene(i, neatInnovationMap.acquireNodeInnovation(i).getInnovationID(), parent1.getNeuronType(i)));
         }
-        usedHiddenNeurons.forEach(integer -> newNeuronGenes.add(new NeuronGene(integer, manager.acquireNodeInnovation(integer).getInnovationID(), manager.getNeuronType(integer))));
+        usedHiddenNeurons.forEach(nodeID -> newNeuronGenes.add(new NeuronGene(nodeID, neatInnovationMap.acquireNodeInnovation(nodeID).getInnovationID(), parent1.getNeuronType(nodeID))));
 
-        NEATGenome genome = new NEATGenome(newConnectionGenes, newNeuronGenes, manager);
+        NEATGenome genome = new NEATGenome(newConnectionGenes, newNeuronGenes, numInputs, numOutputs);
 
         genome.sortGenes();
-        genome.verifyGenome();
         return genome;
     }
 

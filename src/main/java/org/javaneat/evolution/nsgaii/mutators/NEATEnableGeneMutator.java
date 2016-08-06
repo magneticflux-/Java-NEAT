@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
  * Created by Mitchell on 3/24/2016.
  * <p>
  * DO NOT USE! Breaks NEAT because splitting nodes relies on connections staying disabled
+ * Nevermind lol
  */
-@Deprecated
 public class NEATEnableGeneMutator extends Mutator<NEATGenome> {
     @Override
     public String[] getAspectDescriptions() {
@@ -25,15 +25,10 @@ public class NEATEnableGeneMutator extends Mutator<NEATGenome> {
     protected NEATGenome mutate(NEATGenome object, double mutationStrength, double mutationProbability) {
         NEATGenome newObject = object.copy();
 
-        while (ThreadLocalRandom.current().nextDouble() <= mutationStrength) {
-            mutationStrength--; // If strength is 1.5, 100% chance to remove first time, 50% second, 0% final check.
-            List<ConnectionGene> validGenes = newObject.getConnectionGeneList().stream().filter(gene -> !gene.getEnabled()).collect(Collectors.toList());
-            if (validGenes.size() > 0)
-                validGenes.get(ThreadLocalRandom.current().nextInt(validGenes.size())).setEnabled(true);
-        }
+        List<ConnectionGene> validGenes = newObject.getConnectionGeneList().stream().filter(gene -> !gene.getEnabled()).collect(Collectors.toList());
+        if (validGenes.size() > 0)
+            validGenes.get(ThreadLocalRandom.current().nextInt(validGenes.size())).setEnabled(true);
 
-        newObject.sortGenes();
-        newObject.verifyGenome();
         return newObject;
     }
 }

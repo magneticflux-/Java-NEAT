@@ -1,7 +1,6 @@
 package org.javaneat.phenome;
 
 import org.apache.commons.math3.util.FastMath;
-import org.javaneat.evolution.NEATGenomeManager;
 import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
 import org.javaneat.genome.NeuronGene;
@@ -13,15 +12,17 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class NEATPhenome {
-    private final NEATGenomeManager manager;
     private final List<NEATConnection> connectionList;
     private final double[] preActivation;
     private final double[] postActivation;
+    private final int numInputs;
+    private final int numOutputs;
 
     public NEATPhenome(NEATGenome genome) {
         this.preActivation = new double[genome.getNeuronGeneList().size()];
         this.postActivation = new double[genome.getNeuronGeneList().size()];
-        this.manager = genome.getManager();
+        this.numInputs = genome.getNumInputs();
+        this.numOutputs = genome.getNumOutputs();
 
         genome.sortGenes();
 
@@ -38,6 +39,14 @@ public class NEATPhenome {
 
     private static double activationFunction(double x) {
         return FastMath.tanh(x);
+    }
+
+    public int getNumInputs() {
+        return numInputs;
+    }
+
+    public int getNumOutputs() {
+        return numOutputs;
     }
 
     public void resetInternalState() {
@@ -58,11 +67,11 @@ public class NEATPhenome {
     }
 
     public double[] stepTime(double[] inputs) {
-        if (inputs.length != this.manager.getNumInputs())
+        if (inputs.length != numInputs)
             throw new IllegalArgumentException("Input length not correct.");
 
         this.postActivation[0] = 1;
-        System.arraycopy(inputs, 0, this.postActivation, this.manager.getInputOffset(), this.manager.getNumInputs()); // Setting bias and inputs
+        System.arraycopy(inputs, 0, this.postActivation, 1, numInputs); // Setting bias and inputs
 
         // Adding up all connections
         //noinspection NestedAssignment
@@ -76,8 +85,8 @@ public class NEATPhenome {
                     this.preActivation[i] = 0;
                 });
 
-        double[] output = new double[this.manager.getNumOutputs()];
-        System.arraycopy(this.postActivation, this.manager.getOutputOffset(), output, 0, this.manager.getNumOutputs()); // Getting outputs
+        double[] output = new double[numOutputs];
+        System.arraycopy(this.postActivation, 1 + numInputs, output, 0, numOutputs); // Getting outputs
 
         return output;
     }

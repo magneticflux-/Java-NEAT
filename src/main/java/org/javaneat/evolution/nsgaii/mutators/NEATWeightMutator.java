@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Mitchell on 3/23/2016.
  */
 public class NEATWeightMutator extends Mutator<NEATGenome> {
+
     @Override
     public String[] getAspectDescriptions() {
         return new String[]{"Weight Mutation Strength", "Weight Mutation Probability"};
@@ -23,10 +24,9 @@ public class NEATWeightMutator extends Mutator<NEATGenome> {
         newObject.getConnectionGeneList().stream()
                 .filter(ConnectionGene::getEnabled)
                 .filter(gene -> ThreadLocalRandom.current().nextDouble() < mutationProbability)
-                .forEach(gene -> gene.setWeight(gene.getWeight() + (ThreadLocalRandom.current().nextDouble() * 2 - 1) * mutationStrength));
+                .forEach(gene -> gene.setWeight(Mutator.mutate(gene.getWeight(), ThreadLocalRandom.current(), mutationStrength)));
 
-        newObject.sortGenes();
-        newObject.verifyGenome();
+        //newObject.sortGenes();
         return newObject;
     }
 }

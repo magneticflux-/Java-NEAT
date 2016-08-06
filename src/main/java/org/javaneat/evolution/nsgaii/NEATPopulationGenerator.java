@@ -1,6 +1,6 @@
 package org.javaneat.evolution.nsgaii;
 
-import org.javaneat.evolution.NEATGenomeManager;
+import org.javaneat.evolution.NEATInnovationMap;
 import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.NEATGenome;
 import org.jnsgaii.population.PopulationGenerator;
@@ -21,13 +21,16 @@ public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> 
 
     private final Source source;
     private final Collection<Individual<NEATGenome>> seed;
+    private final NEATInnovationMap neatInnovationMap;
 
-    public NEATPopulationGenerator() {
+    public NEATPopulationGenerator(NEATInnovationMap neatInnovationMap) {
+        this.neatInnovationMap = neatInnovationMap;
         this.source = Source.RANDOM;
         this.seed = new ArrayList<>();
     }
 
-    public NEATPopulationGenerator(Collection<Individual<NEATGenome>> seed) {
+    public NEATPopulationGenerator(NEATInnovationMap neatInnovationMap, Collection<Individual<NEATGenome>> seed) {
+        this.neatInnovationMap = neatInnovationMap;
         this.seed = new ArrayList<>(seed);
         this.source = Source.SEEDED;
     }
@@ -39,15 +42,10 @@ public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> 
         final int numInputs = properties.getInt(NEATIntKey.INPUT_COUNT);
         final int numOutputs = properties.getInt(NEATIntKey.OUTPUT_COUNT);
 
-        NEATGenomeManager genomeManager = new NEATGenomeManager(numInputs, numOutputs);
-
-        genomeManager.numInputs = numInputs;
-        genomeManager.numOutputs = numOutputs;
-
         switch (source) {
             case RANDOM:
                 for (int i = 0; i < num; i++) {
-                    NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), genomeManager);
+                    NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), numInputs, numOutputs, neatInnovationMap);
                     population.add(new Individual<>(genome, defaultAspects));
                 }
                 break;

@@ -10,6 +10,7 @@ import org.jnsgaii.properties.Key;
 import org.jnsgaii.util.Utils;
 
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 
 /**
@@ -51,15 +52,12 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
         // System.out.println("[DistanceCalc]");
         NEATGenome genome1 = individual.getIndividual(), genome2 = individual2.getIndividual();
 
-        genome1.sortGenes();
-        genome2.sortGenes();
-
-        genome1.verifyGenome();
-        genome2.verifyGenome();
+        //genome1.sortGenes();
+        //genome2.sortGenes();
 
         List<ConnectionGene> genome1Genes = genome1.getConnectionGeneList();
         List<ConnectionGene> genome2Genes = genome2.getConnectionGeneList();
-
+/*
         int innovationCutoff;
         if (genome1Genes.get(genome1Genes.size() - 1).getInnovationID() > genome2Genes.get(genome2Genes.size() - 1).getInnovationID()) { // If the newest innovation is in genome 1, get the newest innovation from genome 2
             innovationCutoff = genome2Genes.get(genome2Genes.size() - 1).getInnovationID();
@@ -67,6 +65,7 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
             innovationCutoff = genome1Genes.get(genome1Genes.size() - 1).getInnovationID();
         }
         // System.out.println("Cutoff: " + innovationCutoff);
+        */
 
         // int largestGenomeSize = FastMath.max(genome1Genes.size(), genome2Genes.size()); // Only for normalization
         int numDisjoint = 0;
@@ -74,6 +73,39 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
         int numMatched = 0;
         double weightDifference = 0;
 
+        ListIterator<ConnectionGene> genome1Iterator = genome1Genes.listIterator();
+        ListIterator<ConnectionGene> genome2Iterator = genome2Genes.listIterator();
+
+        while (genome1Iterator.hasNext() || genome2Iterator.hasNext()) {
+            ConnectionGene currentGenome1Gene = null, currentGenome2Gene = null;
+            if (genome1Iterator.hasNext())
+                currentGenome1Gene = genome1Iterator.next();
+            if (genome2Iterator.hasNext())
+                currentGenome2Gene = genome2Iterator.next();
+
+            assert currentGenome1Gene != null || currentGenome2Gene != null;
+
+            if (currentGenome1Gene != null && currentGenome2Gene != null) {
+
+                if (currentGenome1Gene.getInnovationID() == currentGenome2Gene.getInnovationID()) {
+                    numMatched++;
+                    weightDifference += FastMath.abs(currentGenome1Gene.getWeight() - currentGenome2Gene.getWeight());
+                } else if (currentGenome1Gene.getInnovationID() > currentGenome2Gene.getInnovationID()) {
+                    numDisjoint++;
+                    genome1Iterator.previous();
+                } else if (currentGenome1Gene.getInnovationID() < currentGenome2Gene.getInnovationID()) {
+                    numDisjoint++;
+                    genome1Iterator.previous();
+                }
+
+            } else if (currentGenome1Gene != null) { //currentGenome1Gene != null && currentGenome2Gene == null
+                numExcess++;
+            } else { //currentGenome1Gene == null && currentGenome2Gene != null
+                numExcess++;
+            }
+        }
+
+/*
         // System.out.println("Genome1");
         for (ConnectionGene gene : genome1Genes) // ONLY CHECK MATCHING GENES FIRST TIME
         {
@@ -114,6 +146,7 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
                 numExcess++;
             }
         }
+        */
         // System.out.println("[DistanceCalc]");
         double disjointGeneCoefficient = (individual.aspects[startIndex + 1] + individual2.aspects[startIndex + 1]) / 2;
         double excessGeneCoefficient = (individual.aspects[startIndex + 2] + individual2.aspects[startIndex + 2]) / 2;
