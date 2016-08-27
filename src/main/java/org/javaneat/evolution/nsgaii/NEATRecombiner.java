@@ -57,18 +57,18 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
 
         while (parent1Iterator.hasNext() || parent2Iterator.hasNext()) {
             if (parent1Iterator.hasNext() && !parent2Iterator.hasNext()) {
-                newConnectionGenes.add(parent1Iterator.next());
+                newConnectionGenes.add(new ConnectionGene(parent1Iterator.next()));
             } else if (!parent1Iterator.hasNext() && parent2Iterator.hasNext()) {
-                newConnectionGenes.add(parent2Iterator.next());
+                newConnectionGenes.add(new ConnectionGene(parent2Iterator.next()));
             } else { // If both lists have genes remaining...
                 ConnectionGene parent1CurrentGene = parent1Iterator.next();
                 ConnectionGene parent2CurrentGene = parent2Iterator.next();
 
                 if (parent1CurrentGene.getInnovationID() < parent2CurrentGene.getInnovationID()) {
-                    newConnectionGenes.add(parent1CurrentGene);
+                    newConnectionGenes.add(new ConnectionGene(parent1CurrentGene));
                     parent2Iterator.previous();
                 } else if (parent1CurrentGene.getInnovationID() > parent2CurrentGene.getInnovationID()) {
-                    newConnectionGenes.add(parent2CurrentGene);
+                    newConnectionGenes.add(new ConnectionGene(parent2CurrentGene));
                     parent1Iterator.previous();
                 } else { // If they are the same gene
                     boolean enabled = parent1CurrentGene.getEnabled() && parent2CurrentGene.getEnabled(); // Never add a disabled gene, this can cause the gene splitting to fail
