@@ -33,17 +33,17 @@ public final class Visualizer {
 
         Graph<Integer, Edge> graph = Graphs.synchronizedDirectedGraph(new DirectedSparseMultigraph<>());
 
-        genome.getNeuronGeneList().stream().forEach(neuronGene -> graph.addVertex(neuronGene.getNeuronID()));
+        genome.getNeuronGeneList().forEach(neuronGene -> graph.addVertex(neuronGene.getNeuronID()));
         genome.getConnectionGeneList().stream()
                 .filter(ConnectionGene::getEnabled)
                 .forEach(connectionGene -> graph.addEdge(new Edge(connectionGene), connectionGene.getFromNode(), connectionGene.getToNode()));
 
         FRLayout<Integer, Edge> layout = new FRLayout<>(graph);
-        layout.setMaxIterations(1000);
-        layout.setSize(new Dimension(800, 600));
+        layout.setMaxIterations(10000);
+        layout.setSize(new Dimension(10000, 10000));
 
-        layout.setRepulsionMultiplier(1);
-        layout.setAttractionMultiplier(5);
+        //layout.setRepulsionMultiplier(1);
+        //layout.setAttractionMultiplier(5);
 
         if (squareInputs) {
             int currentNode = 0;
@@ -64,6 +64,15 @@ public final class Visualizer {
                 layout.setLocation(currentNode, new Point2D.Double(squareLength * 32, row * 32));
                 layout.lock(currentNode, true);
                 currentNode++;
+            }
+        } else {
+            for (int currentNode = 0; currentNode < 11 * 11 + 6 + 4 + 4 + 1 + 1; currentNode++) {
+                layout.setLocation(currentNode, new Point2D.Double(0, currentNode * 8));
+                layout.lock(currentNode, true);
+            }
+            for (int currentNode = 11 * 11 + 6 + 4 + 4 + 1 + 1; currentNode < 11 * 11 + 6 + 4 + 4 + 1 + 1 + 6; currentNode++) {
+                layout.setLocation(currentNode, new Point2D.Double(256 * 8, currentNode * 8 / 2));
+                layout.lock(currentNode, true);
             }
         }
 
@@ -96,10 +105,10 @@ public final class Visualizer {
             if (input == 0) { // Bias
                 return Color.GREEN;
             }
-            if (input < squareLength * squareLength + 1) { // Inputs
+            if (input < genome.getNumInputs() + 1) { // Inputs
                 return Color.BLUE;
             }
-            if (input < squareLength * squareLength + 1 + outputNum) { // Outputs
+            if (input < genome.getNumInputs() + 1 + genome.getNumOutputs()) { // Outputs
                 return Color.RED;
             } else { // Hidden
                 return Color.GRAY;
