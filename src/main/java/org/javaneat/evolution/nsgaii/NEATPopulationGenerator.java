@@ -1,78 +1,32 @@
 package org.javaneat.evolution.nsgaii;
 
 import org.javaneat.evolution.NEATInnovationMap;
-import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.NEATGenome;
 import org.jnsgaii.population.PopulationGenerator;
 import org.jnsgaii.population.individual.Individual;
-import org.jnsgaii.properties.Key;
 import org.jnsgaii.properties.Properties;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Created by Mitchell on 3/13/2016.
+ * Created by Mitchell on 8/20/2016.
  */
-public class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> {
-
-    private final Source source;
-    private final Collection<Individual<NEATGenome>> seed;
-    private final NEATInnovationMap neatInnovationMap;
+public abstract class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> {
+    protected final NEATInnovationMap neatInnovationMap;
 
     public NEATPopulationGenerator(NEATInnovationMap neatInnovationMap) {
         this.neatInnovationMap = neatInnovationMap;
-        this.source = Source.RANDOM;
-        this.seed = new ArrayList<>();
     }
 
-    public NEATPopulationGenerator(NEATInnovationMap neatInnovationMap, Collection<Individual<NEATGenome>> seed) {
-        this.neatInnovationMap = neatInnovationMap;
-        this.seed = new ArrayList<>(seed);
-        this.source = Source.SEEDED;
+    public static NEATPopulationGenerator createNEATPopulationGenerator(NEATInnovationMap neatInnovationMap) {
+        return new RandomNEATPopulationGenerator(neatInnovationMap);
     }
 
-    @Override
-    public List<Individual<NEATGenome>> generatePopulation(int num, Properties properties) {
-        List<Individual<NEATGenome>> population = new ArrayList<>(num);
-        final double[] defaultAspects = (double[]) properties.getValue(Key.DoubleKey.DefaultDoubleKey.INITIAL_ASPECT_ARRAY);
-        final int numInputs = properties.getInt(NEATIntKey.INPUT_COUNT);
-        final int numOutputs = properties.getInt(NEATIntKey.OUTPUT_COUNT);
-
-        switch (source) {
-            case RANDOM:
-                for (int i = 0; i < num; i++) {
-                    NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), numInputs, numOutputs, neatInnovationMap);
-                    population.add(new Individual<>(genome, defaultAspects));
-                }
-                break;
-            case SEEDED:
-                Iterator<Individual<NEATGenome>> iterator = seed.iterator();
-                for (int i = 0; i < num; i++) {
-                    Individual<NEATGenome> next = iterator.next();
-                    population.add(new Individual<>(new NEATGenome(next.getIndividual()), next.aspects));
-
-                    if (!iterator.hasNext()) { // Reset to the beginning
-                        iterator = seed.iterator();
-                    }
-                }
-                break;
-        }
-
-        return population;
+    public static NEATPopulationGenerator createNEATPopulationGenerator(NEATInnovationMap neatInnovationMap, Collection<Individual<NEATGenome>> seed) {
+        return new SeededNEATPopulationGenerator(neatInnovationMap, seed);
     }
 
     @Override
-    public Key[] requestProperties() {
-        return new Key[]{
-                NEATIntKey.INPUT_COUNT, NEATIntKey.OUTPUT_COUNT, NEATIntKey.INITIAL_LINK_COUNT
-        };
-    }
-
-    private enum Source {
-        RANDOM, SEEDED
-    }
+    public abstract List<Individual<NEATGenome>> generatePopulation(int num, Properties properties);
 }
