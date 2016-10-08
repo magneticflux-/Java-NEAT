@@ -40,7 +40,7 @@ public final class Visualizer {
 
         FRLayout<Integer, Edge> layout = new FRLayout<>(graph);
         layout.setMaxIterations(10000);
-        layout.setSize(new Dimension(10000, 10000));
+        layout.setSize(new Dimension(1000, 1000));
 
         //layout.setRepulsionMultiplier(1);
         //layout.setAttractionMultiplier(5);
@@ -66,11 +66,11 @@ public final class Visualizer {
                 currentNode++;
             }
         } else {
-            for (int currentNode = 0; currentNode < 11 * 11 + 6 + 4 + 4 + 1 + 1; currentNode++) {
+            for (int currentNode = 0; currentNode < 11 * 11 + 6 + 4 * 3 + 1 + 1; currentNode++) {
                 layout.setLocation(currentNode, new Point2D.Double(0, currentNode * 8));
                 layout.lock(currentNode, true);
             }
-            for (int currentNode = 11 * 11 + 6 + 4 + 4 + 1 + 1; currentNode < 11 * 11 + 6 + 4 + 4 + 1 + 1 + 6; currentNode++) {
+            for (int currentNode = 11 * 11 + 6 + 4 * 3 + 1 + 1; currentNode < 11 * 11 + 6 + 4 * 3 + 1 + 1 + 6; currentNode++) {
                 layout.setLocation(currentNode, new Point2D.Double(256 * 8, currentNode * 8 / 2));
                 layout.lock(currentNode, true);
             }
@@ -89,7 +89,7 @@ public final class Visualizer {
 
         FRLayout<Integer, Edge> layout = getLayout(squareInputs, squareLength, outputNum, genome);
 
-        VisualizationViewer<Integer, Edge> vv = new VisualizationViewer<>(layout, new Dimension(400, 200));
+        VisualizationViewer<Integer, Edge> vv = new VisualizationViewer<>(layout, new Dimension(200, 200));
         PredicatedParallelEdgeIndexFunction<Integer, Edge> predicatedParallelEdgeIndexFunction = PredicatedParallelEdgeIndexFunction.getInstance();
         predicatedParallelEdgeIndexFunction.setPredicate(input -> true);
         vv.getRenderContext().setParallelEdgeIndexFunction(predicatedParallelEdgeIndexFunction);
