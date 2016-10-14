@@ -1,37 +1,81 @@
 package org.javaneat.evolution.nsgaii;
 
 import org.apache.commons.math3.util.FastMath;
+import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
+import org.jnsgaii.multiobjective.population.FrontedIndividual;
+import org.jnsgaii.observation.EvolutionObserver;
 import org.jnsgaii.operators.Speciator;
+import org.jnsgaii.population.PopulationData;
 import org.jnsgaii.population.individual.Individual;
 import org.jnsgaii.properties.AspectUser;
 import org.jnsgaii.properties.Key;
+import org.jnsgaii.properties.Properties;
 import org.jnsgaii.util.Utils;
+import org.jnsgaii.visualization.TabbedVisualizationWindow;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+
+import edu.uci.ics.jung.algorithms.cluster.BicomponentClusterer;
+import edu.uci.ics.jung.graph.UndirectedGraph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 /**
  * Created by Mitchell on 3/22/2016.
  */
-public class NEATSpeciator extends Speciator<NEATGenome> {
+public class NEATSpeciator extends Speciator<NEATGenome> implements EvolutionObserver<NEATGenome> {
+
+    private int[] speciesSizes = new int[]{1};
+    private final TabbedVisualizationWindow.StatisticFunction<NEATGenome> numSpeciesStatisticFunction = new TabbedVisualizationWindow.StatisticFunction<NEATGenome>() {
+        @Override
+        public String getName() {
+            return "Number of Species (Bicomponent Clusters)";
+        }
+
+        @Override
+        public double[] apply(PopulationData<NEATGenome> populationData) {
+            return new double[]{speciesSizes.length};
+        }
+    };
+    private final TabbedVisualizationWindow.StatisticFunction<NEATGenome> speciesSizeStatisticFunction = new TabbedVisualizationWindow.StatisticFunction<NEATGenome>() {
+        @Override
+        public String getName() {
+            return "Size of Species (Bicomponent Clusters)";
+        }
+
+        @Override
+        public double[] apply(PopulationData<NEATGenome> populationData) {
+            return Arrays.stream(speciesSizes).mapToDouble(value -> value).toArray();
+        }
+    };
+    private int numTargetSpecies;
 
     @Override
     public int requestAspectLocation(int startIndex) {
         super.requestAspectLocation(startIndex);
-        return 3;
+        return 4;
     }
 
     @Override
     public String[] getAspectDescriptions() {
-        return new String[]{"Max Mating Distance", "Disjoint Gene Coefficient", "Excess Gene Coefficient"};
+        return new String[]{"Max Mating Distance", "Disjoint Gene Coefficient", "Excess Gene Coefficient", "Target Species"};
+    }
+
+    @Override
+    public void updateProperties(Properties properties) {
+        super.updateProperties(properties);
+        numTargetSpecies = properties.getInt(NEATIntKey.TARGET_SPECIES);
     }
 
     @Override
     public Key[] requestProperties() {
-        return Utils.concat(super.requestProperties(), new Key[0]);
+        return Utils.concat(super.requestProperties(), new Key[]{NEATIntKey.TARGET_SPECIES});
     }
 
     @Override
@@ -43,7 +87,15 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
     public void modifyAspects(Individual<NEATGenome> individual, Random r) {
         double[] aspects = individual.aspects;
 
-        AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex, r, 0, Double.POSITIVE_INFINITY);
+        //AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex, r, 0, Double.POSITIVE_INFINITY);
+
+        int multiplier = 0;
+        if (speciesSizes.length > numTargetSpecies)
+            multiplier = 1;
+        else if (numTargetSpecies > speciesSizes.length)
+            multiplier = -1;
+
+        aspects[startIndex] = aspects[startIndex] + ThreadLocalRandom.current().nextDouble() * aspectModificationArray[startIndex * 2] * multiplier;
         AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 1, r, 0, Double.POSITIVE_INFINITY);
         AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 2, r, 0, Double.POSITIVE_INFINITY);
     }
@@ -157,5 +209,38 @@ public class NEATSpeciator extends Speciator<NEATGenome> {
     @Override
     protected double getMaxDistance(Individual<NEATGenome> individual, Individual<NEATGenome> individual2) {
         return (individual.aspects[startIndex] + individual2.aspects[startIndex]) / 2;
+    }
+
+    @Override
+    public void update(PopulationData<NEATGenome> populationData) {
+        UndirectedGraph<FrontedIndividual<NEATGenome>, GeneticCompatibilityEdge> geneticGraph = new UndirectedSparseGraph<>();
+        @SuppressWarnings("unchecked")
+        List<FrontedIndividual<NEATGenome>> population = (List<FrontedIndividual<NEATGenome>>) populationData.getTruncatedPopulation().getPopulation();
+        population.forEach(geneticGraph::addVertex);
+        for (int outer = 0; outer < population.size(); outer++) {
+            FrontedIndividual<NEATGenome> outerIndividual = population.get(outer);
+            for (int inner = outer + 1; inner < population.size(); inner++) {
+                FrontedIndividual<NEATGenome> innerIndividual = population.get(inner);
+                if (this.apply(outerIndividual, innerIndividual)) {
+                    geneticGraph.addEdge(new GeneticCompatibilityEdge(), outerIndividual, innerIndividual);
+                }
+            }
+        }
+        BicomponentClusterer<FrontedIndividual<NEATGenome>, GeneticCompatibilityEdge> bicomponentClusterer = new BicomponentClusterer<>();
+        Set<Set<FrontedIndividual<NEATGenome>>> clusters = bicomponentClusterer.apply(geneticGraph);
+
+        assert clusters != null;
+        speciesSizes = clusters.stream().mapToInt(Set::size).toArray();
+    }
+
+    public TabbedVisualizationWindow.StatisticFunction<NEATGenome> getNumSpeciesStatisticFunction() {
+        return numSpeciesStatisticFunction;
+    }
+
+    public TabbedVisualizationWindow.StatisticFunction<NEATGenome> getSpeciesSizeStatisticFunction() {
+        return speciesSizeStatisticFunction;
+    }
+
+    private static class GeneticCompatibilityEdge {
     }
 }
