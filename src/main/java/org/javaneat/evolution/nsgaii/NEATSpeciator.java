@@ -1,5 +1,8 @@
 package org.javaneat.evolution.nsgaii;
 
+import edu.uci.ics.jung.algorithms.cluster.BicomponentClusterer;
+import edu.uci.ics.jung.graph.UndirectedGraph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import org.apache.commons.math3.util.FastMath;
 import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.ConnectionGene;
@@ -15,16 +18,8 @@ import org.jnsgaii.properties.Properties;
 import org.jnsgaii.util.Utils;
 import org.jnsgaii.visualization.TabbedVisualizationWindow;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-
-import edu.uci.ics.jung.algorithms.cluster.BicomponentClusterer;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 /**
  * Created by Mitchell on 3/22/2016.
@@ -59,12 +54,12 @@ public class NEATSpeciator extends Speciator<NEATGenome> implements EvolutionObs
     @Override
     public int requestAspectLocation(int startIndex) {
         super.requestAspectLocation(startIndex);
-        return 4;
+        return 3;
     }
 
     @Override
     public String[] getAspectDescriptions() {
-        return new String[]{"Max Mating Distance", "Disjoint Gene Coefficient", "Excess Gene Coefficient", "Target Species"};
+        return new String[]{"Max Mating Distance", "Disjoint Gene Coefficient", "Excess Gene Coefficient"};
     }
 
     @Override
