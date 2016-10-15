@@ -20,6 +20,7 @@ import org.jnsgaii.visualization.TabbedVisualizationWindow;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 /**
  * Created by Mitchell on 3/22/2016.
@@ -208,21 +209,21 @@ public class NEATSpeciator extends Speciator<NEATGenome> implements EvolutionObs
 
     @Override
     public void update(PopulationData<NEATGenome> populationData) {
-        UndirectedGraph<FrontedIndividual<NEATGenome>, GeneticCompatibilityEdge> geneticGraph = new UndirectedSparseGraph<>();
+        UndirectedGraph<Integer, GeneticCompatibilityEdge> geneticGraph = new UndirectedSparseGraph<>();
         @SuppressWarnings("unchecked")
         List<FrontedIndividual<NEATGenome>> population = (List<FrontedIndividual<NEATGenome>>) populationData.getTruncatedPopulation().getPopulation();
-        population.forEach(geneticGraph::addVertex);
+        IntStream.range(0, population.size()).forEach(geneticGraph::addVertex);
         for (int outer = 0; outer < population.size(); outer++) {
             FrontedIndividual<NEATGenome> outerIndividual = population.get(outer);
             for (int inner = outer + 1; inner < population.size(); inner++) {
                 FrontedIndividual<NEATGenome> innerIndividual = population.get(inner);
                 if (this.apply(outerIndividual, innerIndividual)) {
-                    geneticGraph.addEdge(new GeneticCompatibilityEdge(), outerIndividual, innerIndividual);
+                    geneticGraph.addEdge(new GeneticCompatibilityEdge(), outer, inner);
                 }
             }
         }
-        BicomponentClusterer<FrontedIndividual<NEATGenome>, GeneticCompatibilityEdge> bicomponentClusterer = new BicomponentClusterer<>();
-        Set<Set<FrontedIndividual<NEATGenome>>> clusters = bicomponentClusterer.apply(geneticGraph);
+        BicomponentClusterer<Integer, GeneticCompatibilityEdge> bicomponentClusterer = new BicomponentClusterer<>();
+        Set<Set<Integer>> clusters = bicomponentClusterer.apply(geneticGraph);
 
         assert clusters != null;
         speciesSizes = clusters.stream().mapToInt(Set::size).toArray();
