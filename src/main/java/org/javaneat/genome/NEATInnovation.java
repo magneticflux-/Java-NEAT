@@ -3,10 +3,10 @@ package org.javaneat.genome;
 import java.io.Serializable;
 
 public class NEATInnovation implements Serializable {
-    private final int innovationID;
-    private final int neuronID;
-    private final int toNeuron;
-    private final int fromNeuron;        // -1 if link
+    private final long innovationID;
+    private final long neuronID;
+    private final long toNeuron;
+    private final long fromNeuron;        // -1 if link
 
     @SuppressWarnings("unused")
     private NEATInnovation() // This is to serialize properly
@@ -14,26 +14,26 @@ public class NEATInnovation implements Serializable {
         this(-1, -1, -1, -1);
     }
 
-    public NEATInnovation(int innovationID, int neuronID) {
+    public NEATInnovation(long innovationID, long neuronID) {
         this(innovationID, neuronID, -1, -1);
     }
 
-    public NEATInnovation(int innovationID, int fromNeuron, int toNeuron) {
+    public NEATInnovation(long innovationID, long fromNeuron, long toNeuron) {
         this(innovationID, -1, toNeuron, fromNeuron);
     }
 
-    public NEATInnovation(int innovationID, int neuronID, int fromNeuron, int toNeuron) {
+    public NEATInnovation(long innovationID, long neuronID, long fromNeuron, long toNeuron) {
         this.innovationID = innovationID;
         this.neuronID = neuronID;
         this.fromNeuron = fromNeuron;
         this.toNeuron = toNeuron;
     }
 
-    public int getInnovationID() {
+    public long getInnovationID() {
         return this.innovationID;
     }
 
-    public int getNeuronID() {
+    public long getNeuronID() {
         return this.neuronID;
     }
 
@@ -47,11 +47,11 @@ public class NEATInnovation implements Serializable {
                 '}';
     }
 
-    public int getFromNeuron() {
+    public long getFromNeuron() {
         return fromNeuron;
     }
 
-    public int getToNeuron() {
+    public long getToNeuron() {
         return toNeuron;
     }
 }

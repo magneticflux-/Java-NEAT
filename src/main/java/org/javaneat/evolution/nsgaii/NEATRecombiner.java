@@ -11,7 +11,12 @@ import org.jnsgaii.properties.Key;
 import org.jnsgaii.properties.Properties;
 import org.jnsgaii.util.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -82,7 +87,7 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
             }
         }
 
-        Collection<Integer> usedHiddenNeurons = new HashSet<>();
+        Collection<Long> usedHiddenNeurons = new HashSet<>();
         newConnectionGenes.forEach(connectionGene -> {
             if (parent1.getNeuronType(connectionGene.getToNode()) == NeuronType.HIDDEN)
                 usedHiddenNeurons.add(connectionGene.getToNode());

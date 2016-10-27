@@ -26,7 +26,7 @@ public class NEATPhenome {
 
         genome.sortGenes();
 
-        HashMap<Integer, Integer> neuronIDToArrayIndex = new HashMap<>(genome.getNeuronGeneList().size());
+        HashMap<Long, Integer> neuronIDToArrayIndex = new HashMap<>(genome.getNeuronGeneList().size());
         for (NeuronGene gene : genome.getNeuronGeneList()) {
             neuronIDToArrayIndex.put(gene.getNeuronID(), neuronIDToArrayIndex.size());
         }

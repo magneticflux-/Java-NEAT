@@ -7,15 +7,15 @@ import java.io.Serializable;
  */
 public class InnovationKey implements Serializable {
     private final InnovationType type;
-    private final int fromNode;
-    private final int toNode;
+    private final long fromNode;
+    private final long toNode;
 
     @SuppressWarnings("unused")
     private InnovationKey() {
         this(null, -1, -1);
     }
 
-    public InnovationKey(InnovationType type, int fromNode, int toNode) {
+    public InnovationKey(InnovationType type, long fromNode, long toNode) {
         this.type = type;
         this.fromNode = fromNode;
         this.toNode = toNode;
@@ -37,8 +37,8 @@ public class InnovationKey implements Serializable {
     @Override
     public int hashCode() {
         int result = type.hashCode();
-        result = 31 * result + fromNode;
-        result = 31 * result + toNode;
+        result = 31 * result + (int) (fromNode ^ (fromNode >>> 32));
+        result = 31 * result + (int) (toNode ^ (toNode >>> 32));
         return result;
     }
 

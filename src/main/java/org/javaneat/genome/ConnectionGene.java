@@ -3,9 +3,9 @@ package org.javaneat.genome;
 import java.io.Serializable;
 
 public class ConnectionGene implements Comparable<ConnectionGene>, Serializable {
-    private final int innovationID;
-    private final int fromNode;
-    private final int toNode;
+    private final long innovationID;
+    private final long fromNode;
+    private final long toNode;
     private double weight;
     private boolean enabled;
 
@@ -21,7 +21,7 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Serializable 
         this(other.fromNode, other.toNode, other.innovationID, other.weight, enabled);
     }
 
-    public ConnectionGene(int fromNode, int toNode, int innovationID, double weight, boolean enabled) // Immutable-ish
+    public ConnectionGene(long fromNode, long toNode, long innovationID, double weight, boolean enabled) // Immutable-ish
     {
         this.fromNode = fromNode;
         this.toNode = toNode;
@@ -34,7 +34,7 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Serializable 
         this(other.fromNode, other.toNode, other.innovationID, other.weight, other.enabled);
     }
 
-    public int getInnovationID() {
+    public long getInnovationID() {
         return this.innovationID;
     }
 
@@ -54,17 +54,12 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Serializable 
         this.weight = weight;
     }
 
-    public int getFromNode() {
+    public long getFromNode() {
         return this.fromNode;
     }
 
-    public int getToNode() {
+    public long getToNode() {
         return this.toNode;
-    }
-
-    @Override
-    public int hashCode() {
-        return innovationID;
     }
 
     @Override
@@ -78,11 +73,16 @@ public class ConnectionGene implements Comparable<ConnectionGene>, Serializable 
 
     }
 
+    @Override
+    public int hashCode() {
+        return (int) (innovationID ^ (innovationID >>> 32));
+    }
+
     public String toString() {
         return "ConnectionGene=[FromNode:" + this.fromNode + ",ToNode:" + this.toNode + ",Weight:" + this.weight + ",Enabled:" + this.enabled + ",InnovationID:" + this.innovationID + "]";
     }
 
     public int compareTo(ConnectionGene o) {
-        return Integer.compare(this.innovationID, o.innovationID);
+        return Long.compare(this.innovationID, o.innovationID);
     }
 }

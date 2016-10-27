@@ -67,19 +67,12 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
     }
 
     private class PotentialLink {
-        private final int fromNode;
-        private final int toNode;
+        private final long fromNode;
+        private final long toNode;
 
-        public PotentialLink(int fromNode, int toNode) {
+        public PotentialLink(long fromNode, long toNode) {
             this.fromNode = fromNode;
             this.toNode = toNode;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = fromNode;
-            result = 31 * result + toNode;
-            return result;
         }
 
         @Override
@@ -92,6 +85,13 @@ public class NEATLinkAdditionMutator extends Mutator<NEATGenome> {
             if (fromNode != that.fromNode) return false;
             return toNode == that.toNode;
 
+        }
+
+        @Override
+        public int hashCode() {
+            int result = (int) (fromNode ^ (fromNode >>> 32));
+            result = 31 * result + (int) (toNode ^ (toNode >>> 32));
+            return result;
         }
     }
 }

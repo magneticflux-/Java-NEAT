@@ -3,8 +3,8 @@ package org.javaneat.genome;
 import java.io.Serializable;
 
 public class NeuronGene implements Comparable<NeuronGene>, Serializable {
-    private int neuronID;
-    private int innovationID;
+    private long neuronID;
+    private long innovationID;
     private NeuronType neuronType;
 
     @SuppressWarnings("unused")
@@ -18,7 +18,7 @@ public class NeuronGene implements Comparable<NeuronGene>, Serializable {
         this.neuronType = other.neuronType;
     }
 
-    public NeuronGene(int neuronID, int innovationID, NeuronType neuronType) {
+    public NeuronGene(long neuronID, long innovationID, NeuronType neuronType) {
         this.neuronID = neuronID;
         this.innovationID = innovationID;
         this.neuronType = neuronType;
@@ -28,7 +28,7 @@ public class NeuronGene implements Comparable<NeuronGene>, Serializable {
         return neuronType;
     }
 
-    public int getNeuronID() {
+    public long getNeuronID() {
         return this.neuronID;
     }
 
@@ -37,6 +37,6 @@ public class NeuronGene implements Comparable<NeuronGene>, Serializable {
     }
 
     public int compareTo(NeuronGene o) {
-        return Integer.compare(this.innovationID, o.innovationID);
+        return Long.compare(this.innovationID, o.innovationID);
     }
 }

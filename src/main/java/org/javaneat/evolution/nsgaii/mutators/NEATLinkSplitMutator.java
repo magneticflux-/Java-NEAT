@@ -1,7 +1,11 @@
 package org.javaneat.evolution.nsgaii.mutators;
 
 import org.javaneat.evolution.NEATInnovationMap;
-import org.javaneat.genome.*;
+import org.javaneat.genome.ConnectionGene;
+import org.javaneat.genome.NEATGenome;
+import org.javaneat.genome.NEATInnovation;
+import org.javaneat.genome.NeuronGene;
+import org.javaneat.genome.NeuronType;
 import org.jnsgaii.operators.Mutator;
 
 import java.util.List;
@@ -42,7 +46,7 @@ public class NEATLinkSplitMutator extends Mutator<NEATGenome> {
             replaced.setEnabled(false); // Disable it
 
             NEATInnovation splitInnovation = neatInnovationMap.acquireSplitInnovation(replaced.getFromNode(), replaced.getToNode());
-            int neuronID = splitInnovation.getNeuronID();
+            long neuronID = splitInnovation.getNeuronID();
 
             NeuronGene insertedNeuron = new NeuronGene(neuronID, splitInnovation.getInnovationID(), NeuronType.HIDDEN);
             ConnectionGene leftConnection = new ConnectionGene(replaced.getFromNode(), neuronID, neatInnovationMap.acquireLinkInnovation(replaced.getFromNode(), neuronID).getInnovationID(), 1, true);

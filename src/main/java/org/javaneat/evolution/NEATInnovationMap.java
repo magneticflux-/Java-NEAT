@@ -12,8 +12,9 @@ import java.util.Map;
  */
 public class NEATInnovationMap implements Serializable {
     private final Map<InnovationKey, NEATInnovation> innovations;
-    private int globalInnovationID = 0;
-    private int globalNeuronID = 0;
+    private long globalInnovationID = 0;
+    private long globalNeuronID = 0;
+    private long globalNetworkID = 0; //Unique number for each neural network
 
     @SuppressWarnings("unused")
     public NEATInnovationMap() {
@@ -31,32 +32,38 @@ public class NEATInnovationMap implements Serializable {
             this.acquireNodeInnovation(this.getNewNeuronID()); // Outputs
     }
 
-    private static InnovationKey getNodeKey(final int nodeID) {
+    private static InnovationKey getNodeKey(final long nodeID) {
         return new InnovationKey(InnovationKey.InnovationType.NODE, nodeID, -1);
     }
 
-    private static InnovationKey getLinkKey(final int fromNode, final int toNode) {
+    private static InnovationKey getLinkKey(final long fromNode, final long toNode) {
         return new InnovationKey(InnovationKey.InnovationType.LINK, fromNode, toNode);
     }
 
-    private static InnovationKey getSplitKey(final int fromNode, final int toNode) {
+    private static InnovationKey getSplitKey(final long fromNode, final Long toNode) {
         return new InnovationKey(InnovationKey.InnovationType.SPLIT, fromNode, toNode);
     }
 
-    private int getNewInnovationID() {
-        int result = this.globalInnovationID;
+    private long getNewInnovationID() {
+        long result = this.globalInnovationID;
         this.globalInnovationID++;
         return result;
     }
 
-    private int getNewNeuronID() {
-        int result = this.globalNeuronID;
+    private long getNewNeuronID() {
+        long result = this.globalNeuronID;
         this.globalNeuronID++;
         //System.out.println("Global neuron ID is now: " + globalNeuronID);
         return result;
     }
 
-    public NEATInnovation acquireNodeInnovation(final int nodeID) // ONLY for input, output, and bias nodes.
+    protected long getNewNetworkID() {
+        long result = this.globalNetworkID;
+        this.globalNetworkID++;
+        return result;
+    }
+
+    public NEATInnovation acquireNodeInnovation(final long nodeID) // ONLY for input, output, and bias nodes.
     {
         InnovationKey key = getNodeKey(nodeID);
         if (!this.innovations.containsKey(key)) {
@@ -65,7 +72,7 @@ public class NEATInnovationMap implements Serializable {
         return this.innovations.get(key);
     }
 
-    public NEATInnovation acquireLinkInnovation(final int fromNode, final int toNode) // For a link mutation
+    public NEATInnovation acquireLinkInnovation(final long fromNode, final long toNode) // For a link mutation
     {
         InnovationKey key = getLinkKey(fromNode, toNode);
         if (!this.innovations.containsKey(key)) {
@@ -74,7 +81,7 @@ public class NEATInnovationMap implements Serializable {
         return this.innovations.get(key);
     }
 
-    public NEATInnovation acquireSplitInnovation(final int fromNode, final int toNode) // For a split mutation
+    public NEATInnovation acquireSplitInnovation(final long fromNode, final Long toNode) // For a split mutation
     {
         InnovationKey key = getSplitKey(fromNode, toNode);
         if (!this.innovations.containsKey(key)) {

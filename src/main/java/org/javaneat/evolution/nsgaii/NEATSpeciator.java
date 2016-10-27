@@ -32,7 +32,7 @@ import edu.uci.ics.jung.graph.UndirectedSparseGraph;
  */
 public class NEATSpeciator extends Speciator<NEATGenome> implements EvolutionObserver<NEATGenome> {
 
-    private int[] speciesSizes = new int[]{1};
+    private int[] speciesSizes = new int[0];
     private final TabbedVisualizationWindow.StatisticFunction<NEATGenome> numSpeciesStatisticFunction = new TabbedVisualizationWindow.StatisticFunction<NEATGenome>() {
         @Override
         public String getName() {

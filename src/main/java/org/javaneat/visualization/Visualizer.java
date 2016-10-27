@@ -1,5 +1,18 @@
 package org.javaneat.visualization;
 
+import org.apache.commons.math3.util.FastMath;
+import org.javaneat.genome.ConnectionGene;
+import org.javaneat.genome.NEATGenome;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
+
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -7,17 +20,6 @@ import edu.uci.ics.jung.graph.util.Graphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
-import org.apache.commons.math3.util.FastMath;
-import org.javaneat.genome.ConnectionGene;
-import org.javaneat.genome.NEATGenome;
-
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 
 /**
  * Created by Mitchell on 4/14/2016.
@@ -29,16 +31,16 @@ public final class Visualizer {
     private Visualizer() {
     }
 
-    public static FRLayout<Integer, Edge> getLayout(boolean squareInputs, int squareLength, int outputNum, NEATGenome genome) {
+    public static FRLayout<Long, Edge> getLayout(boolean squareInputs, int squareLength, int outputNum, NEATGenome genome) {
 
-        Graph<Integer, Edge> graph = Graphs.synchronizedDirectedGraph(new DirectedSparseMultigraph<>());
+        Graph<Long, Edge> graph = Graphs.synchronizedDirectedGraph(new DirectedSparseMultigraph<>());
 
         genome.getNeuronGeneList().forEach(neuronGene -> graph.addVertex(neuronGene.getNeuronID()));
         genome.getConnectionGeneList().stream()
                 .filter(ConnectionGene::getEnabled)
                 .forEach(connectionGene -> graph.addEdge(new Edge(connectionGene), connectionGene.getFromNode(), connectionGene.getToNode()));
 
-        FRLayout<Integer, Edge> layout = new FRLayout<>(graph);
+        FRLayout<Long, Edge> layout = new FRLayout<>(graph);
         layout.setMaxIterations(10000);
         layout.setSize(new Dimension(1000, 1000));
 
@@ -46,7 +48,7 @@ public final class Visualizer {
         //layout.setAttractionMultiplier(5);
 
         if (squareInputs) {
-            int currentNode = 0;
+            long currentNode = 0;
 
             layout.setLocation(currentNode, new Point2D.Double(squareLength * nodeSpacingScale, squareLength * nodeSpacingScale));
             layout.lock(currentNode, true);
@@ -66,11 +68,11 @@ public final class Visualizer {
                 currentNode++;
             }
         } else {
-            for (int currentNode = 0; currentNode < 11 * 11 + 6 + 4 * 3 + 1 + 1; currentNode++) {
+            for (long currentNode = 0; currentNode < 11 * 11 + 6 + 4 * 3 + 1 + 1; currentNode++) {
                 layout.setLocation(currentNode, new Point2D.Double(0, currentNode * 8));
                 layout.lock(currentNode, true);
             }
-            for (int currentNode = 11 * 11 + 6 + 4 * 3 + 1 + 1; currentNode < 11 * 11 + 6 + 4 * 3 + 1 + 1 + 6; currentNode++) {
+            for (long currentNode = 11 * 11 + 6 + 4 * 3 + 1 + 1; currentNode < 11 * 11 + 6 + 4 * 3 + 1 + 1 + 6; currentNode++) {
                 layout.setLocation(currentNode, new Point2D.Double(256 * 8, currentNode * 8 / 2));
                 layout.lock(currentNode, true);
             }
@@ -87,10 +89,10 @@ public final class Visualizer {
 
     public static BufferedImage getImage(boolean squareInputs, int squareLength, int outputNum, NEATGenome genome) {
 
-        FRLayout<Integer, Edge> layout = getLayout(squareInputs, squareLength, outputNum, genome);
+        FRLayout<Long, Edge> layout = getLayout(squareInputs, squareLength, outputNum, genome);
 
-        VisualizationViewer<Integer, Edge> vv = new VisualizationViewer<>(layout, new Dimension(200, 200));
-        PredicatedParallelEdgeIndexFunction<Integer, Edge> predicatedParallelEdgeIndexFunction = PredicatedParallelEdgeIndexFunction.getInstance();
+        VisualizationViewer<Long, Edge> vv = new VisualizationViewer<>(layout, new Dimension(200, 200));
+        PredicatedParallelEdgeIndexFunction<Long, Edge> predicatedParallelEdgeIndexFunction = PredicatedParallelEdgeIndexFunction.getInstance();
         predicatedParallelEdgeIndexFunction.setPredicate(input -> true);
         vv.getRenderContext().setParallelEdgeIndexFunction(predicatedParallelEdgeIndexFunction);
         vv.getRenderContext().setEdgeStrokeTransformer(input -> new BasicStroke(FastMath.abs((float) (3 * input.weight))));
@@ -130,8 +132,8 @@ public final class Visualizer {
 
     public static class Edge {
         public final double weight;
-        public final int fromNode;
-        public final int toNode;
+        public final long fromNode;
+        public final long toNode;
 
         Edge(ConnectionGene connectionGene) {
             this.weight = connectionGene.getWeight();

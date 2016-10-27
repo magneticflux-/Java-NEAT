@@ -94,7 +94,7 @@ public class NEATGenome implements Serializable
         return 1 + this.getNumInputs();
     }
 
-    public NeuronType getNeuronType(int neuronID) {
+    public NeuronType getNeuronType(long neuronID) {
         if (neuronID == 0)
             return NeuronType.BIAS;
         else if (neuronID < 1 + numInputs)
