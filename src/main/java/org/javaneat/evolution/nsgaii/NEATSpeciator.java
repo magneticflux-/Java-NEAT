@@ -1,8 +1,5 @@
 package org.javaneat.evolution.nsgaii;
 
-import edu.uci.ics.jung.algorithms.cluster.BicomponentClusterer;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import org.apache.commons.math3.util.FastMath;
 import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.ConnectionGene;
@@ -18,9 +15,17 @@ import org.jnsgaii.properties.Properties;
 import org.jnsgaii.util.Utils;
 import org.jnsgaii.visualization.TabbedVisualizationWindow;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
+
+import edu.uci.ics.jung.algorithms.cluster.BicomponentClusterer;
+import edu.uci.ics.jung.graph.UndirectedGraph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 /**
  * Created by Mitchell on 3/22/2016.
@@ -105,15 +110,6 @@ public class NEATSpeciator extends Speciator<NEATGenome> implements EvolutionObs
 
         List<ConnectionGene> genome1Genes = genome1.getConnectionGeneList();
         List<ConnectionGene> genome2Genes = genome2.getConnectionGeneList();
-/*
-        int innovationCutoff;
-        if (genome1Genes.get(genome1Genes.size() - 1).getInnovationID() > genome2Genes.get(genome2Genes.size() - 1).getInnovationID()) { // If the newest innovation is in genome 1, get the newest innovation from genome 2
-            innovationCutoff = genome2Genes.get(genome2Genes.size() - 1).getInnovationID();
-        } else { // Else, use the newest innovation from genome 1
-            innovationCutoff = genome1Genes.get(genome1Genes.size() - 1).getInnovationID();
-        }
-        // System.out.println("Cutoff: " + innovationCutoff);
-        */
 
         // int largestGenomeSize = FastMath.max(genome1Genes.size(), genome2Genes.size()); // Only for normalization
         int numDisjoint = 0;
@@ -152,50 +148,6 @@ public class NEATSpeciator extends Speciator<NEATGenome> implements EvolutionObs
                 numExcess++;
             }
         }
-
-/*
-        // System.out.println("Genome1");
-        for (ConnectionGene gene : genome1Genes) // ONLY CHECK MATCHING GENES FIRST TIME
-        {
-            // System.out.println("Gene: " + gene);
-            if (gene.getInnovationID() <= innovationCutoff) // If it is below the disjoint - excess cutoff
-            {
-                // System.out.println("	Below cutoff");
-                if (genome2Genes.contains(gene)) {
-                    // System.out.println("	Matched");
-                    numMatched++;
-                    weightDifference += FastMath.abs(gene.getWeight() - genome2Genes.get(genome2Genes.indexOf(gene)).getWeight());
-                } else {
-                    // System.out.println("	Rejected");
-                    numDisjoint++;
-                }
-            } else
-            // If it is past the length of the older genome
-            {
-                // System.out.println("	Above cutoff");
-                numExcess++;
-            }
-        }
-
-        // System.out.println("Genome2");
-        for (ConnectionGene gene : genome2Genes) {
-            // System.out.println("Gene: " + gene);
-            if (gene.getInnovationID() <= innovationCutoff) {
-                // System.out.println("	Below cutoff");
-                if (genome2Genes.contains(gene)) {
-                    // System.out.println("	Matched");
-                    // Matched genes have been found the first time
-                } else {
-                    // System.out.println("	Rejected");
-                    numDisjoint++;
-                }
-            } else {
-                // System.out.println("	Above cutoff");
-                numExcess++;
-            }
-        }
-        */
-        // System.out.println("[DistanceCalc]");
         double disjointGeneCoefficient = (individual.aspects[startIndex + 1] + individual2.aspects[startIndex + 1]) / 2;
         double excessGeneCoefficient = (individual.aspects[startIndex + 2] + individual2.aspects[startIndex + 2]) / 2;
 
