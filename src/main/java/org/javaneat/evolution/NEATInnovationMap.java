@@ -14,7 +14,6 @@ public class NEATInnovationMap implements Serializable {
     private final Map<InnovationKey, NEATInnovation> innovations;
     private long globalInnovationID = 0;
     private long globalNeuronID = 0;
-    private long globalNetworkID = 0; //Unique number for each neural network
 
     @SuppressWarnings("unused")
     public NEATInnovationMap() {
@@ -54,12 +53,6 @@ public class NEATInnovationMap implements Serializable {
         long result = this.globalNeuronID;
         this.globalNeuronID++;
         //System.out.println("Global neuron ID is now: " + globalNeuronID);
-        return result;
-    }
-
-    protected long getNewNetworkID() {
-        long result = this.globalNetworkID;
-        this.globalNetworkID++;
         return result;
     }
 

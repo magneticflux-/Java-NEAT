@@ -102,7 +102,7 @@ public class NEATRecombiner extends Recombiner<NEATGenome> {
         }
         usedHiddenNeurons.forEach(nodeID -> newNeuronGenes.add(new NeuronGene(nodeID, neatInnovationMap.acquireNodeInnovation(nodeID).getInnovationID(), parent1.getNeuronType(nodeID))));
 
-        NEATGenome genome = new NEATGenome(newConnectionGenes, newNeuronGenes, numInputs, numOutputs);
+        NEATGenome genome = new NEATGenome(newConnectionGenes, newNeuronGenes, numInputs, numOutputs, neatInnovationMap);
 
         genome.sortGenes();
         return genome;

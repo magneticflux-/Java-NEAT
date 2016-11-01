@@ -1,5 +1,7 @@
 package org.javaneat.evolution.nsgaii;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.javaneat.evolution.NEATInnovationMap;
 import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.NEATGenome;
@@ -21,18 +23,19 @@ public class RandomNEATPopulationGenerator extends NEATPopulationGenerator {
     }
 
     @Override
-    public List<Individual<NEATGenome>> generatePopulation(int num, Properties properties) {
+    public Pair<List<Individual<NEATGenome>>, Long> generatePopulation(int num, Properties properties) {
         List<Individual<NEATGenome>> population = new ArrayList<>(num);
         final double[] defaultAspects = (double[]) properties.getValue(Key.DoubleKey.DefaultDoubleKey.INITIAL_ASPECT_ARRAY);
         final int numInputs = properties.getInt(NEATIntKey.INPUT_COUNT);
         final int numOutputs = properties.getInt(NEATIntKey.OUTPUT_COUNT);
+        long currentID = 0;
 
         for (int i = 0; i < num; i++) {
             NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), numInputs, numOutputs, neatInnovationMap);
-            population.add(new Individual<>(genome, defaultAspects));
+            population.add(new Individual<>(genome, defaultAspects, currentID++));
         }
 
-        return population;
+        return new ImmutablePair<>(population, currentID);
     }
 
     @Override

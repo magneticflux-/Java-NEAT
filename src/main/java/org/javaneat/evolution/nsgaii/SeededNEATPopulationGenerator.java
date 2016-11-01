@@ -1,13 +1,15 @@
 package org.javaneat.evolution.nsgaii;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.javaneat.evolution.NEATInnovationMap;
 import org.javaneat.genome.NEATGenome;
+import org.jnsgaii.population.Population;
 import org.jnsgaii.population.individual.Individual;
 import org.jnsgaii.properties.Key;
 import org.jnsgaii.properties.Properties;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,11 +18,11 @@ import java.util.List;
  */
 public class SeededNEATPopulationGenerator extends NEATPopulationGenerator {
 
-    private final Collection<Individual<NEATGenome>> seed;
+    private final Population<NEATGenome> seed;
 
-    public SeededNEATPopulationGenerator(NEATInnovationMap neatInnovationMap, Collection<Individual<NEATGenome>> seed) {
+    public SeededNEATPopulationGenerator(NEATInnovationMap neatInnovationMap, Population<NEATGenome> seed) {
         super(neatInnovationMap);
-        this.seed = new ArrayList<>(seed);
+        this.seed = seed;
     }
 
     @Override
@@ -29,19 +31,16 @@ public class SeededNEATPopulationGenerator extends NEATPopulationGenerator {
     }
 
     @Override
-    public List<Individual<NEATGenome>> generatePopulation(int num, Properties properties) {
+    public Pair<List<Individual<NEATGenome>>, Long> generatePopulation(int num, Properties properties) {
         List<Individual<NEATGenome>> population = new ArrayList<>(num);
 
-        Iterator<Individual<NEATGenome>> iterator = seed.iterator();
-        for (int i = 0; i < num; i++) {
+        Iterator<? extends Individual<NEATGenome>> iterator = seed.getPopulation().iterator();
+        for (int i = 0; i < num && iterator.hasNext(); i++) {
             Individual<NEATGenome> next = iterator.next();
-            population.add(new Individual<>(new NEATGenome(next.getIndividual()), next.aspects));
-
-            if (!iterator.hasNext()) { // Reset to the beginning
-                iterator = seed.iterator();
-            }
+            population.add(next);
+            //population.add(new Individual<>(new NEATGenome(next.getIndividual()), next.aspects,next.id));
         }
 
-        return population;
+        return new ImmutablePair<>(population, seed.getCurrentID());
     }
 }

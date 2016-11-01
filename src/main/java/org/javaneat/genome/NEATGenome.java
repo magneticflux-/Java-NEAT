@@ -18,13 +18,13 @@ public class NEATGenome implements Serializable
     private final int numOutputs;
 
     public NEATGenome(final NEATGenome other) {
-        this(
-                other.connectionGeneList.stream().map(ConnectionGene::new).collect(Collectors.toList()),
-                other.neuronGeneList.stream().map(NeuronGene::new).collect(Collectors.toList()),
-                other.numInputs, other.numOutputs);
+        this.connectionGeneList = other.connectionGeneList.stream().map(ConnectionGene::new).collect(Collectors.toList());
+        this.neuronGeneList = other.neuronGeneList.stream().map(NeuronGene::new).collect(Collectors.toList());
+        this.numInputs = other.numInputs;
+        this.numOutputs = other.numOutputs;
     }
 
-    public NEATGenome(final List<ConnectionGene> connections, final List<NeuronGene> neurons, int numInputs, int numOutputs) {
+    public NEATGenome(final List<ConnectionGene> connections, final List<NeuronGene> neurons, int numInputs, int numOutputs, NEATInnovationMap neatInnovationMap) {
         this.connectionGeneList = new ArrayList<>(connections);
         this.neuronGeneList = new ArrayList<>(neurons);
         this.numInputs = numInputs;
@@ -34,7 +34,10 @@ public class NEATGenome implements Serializable
     @SuppressWarnings("unused")
     private NEATGenome() // This is to serialize properly
     {
-        this(new ArrayList<>(), new ArrayList<>(), -1, -1);
+        this.connectionGeneList = null;
+        this.neuronGeneList = null;
+        this.numInputs = -1;
+        this.numOutputs = -1;
     }
 
     public NEATGenome(Random rng, int numInputs, int numOutputs, NEATInnovationMap neatInnovationMap) {

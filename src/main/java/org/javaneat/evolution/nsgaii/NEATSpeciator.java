@@ -85,9 +85,7 @@ public class NEATSpeciator extends Speciator<NEATGenome> implements EvolutionObs
     }
 
     @Override
-    public void modifyAspects(Individual<NEATGenome> individual, Random r) {
-        double[] aspects = individual.aspects;
-
+    public void modifyAspects(double[] aspects, Random r) {
         //AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex, r, 0, Double.POSITIVE_INFINITY);
 
         int multiplier = 0;
