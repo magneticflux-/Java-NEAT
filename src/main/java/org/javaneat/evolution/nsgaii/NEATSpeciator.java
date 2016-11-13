@@ -1,5 +1,8 @@
 package org.javaneat.evolution.nsgaii;
 
+import edu.uci.ics.jung.algorithms.cluster.BicomponentClusterer;
+import edu.uci.ics.jung.graph.UndirectedGraph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import org.apache.commons.math3.util.FastMath;
 import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.ConnectionGene;
@@ -15,17 +18,9 @@ import org.jnsgaii.properties.Properties;
 import org.jnsgaii.util.Utils;
 import org.jnsgaii.visualization.TabbedVisualizationWindow;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
-
-import edu.uci.ics.jung.algorithms.cluster.BicomponentClusterer;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 /**
  * Created by Mitchell on 3/22/2016.
@@ -91,10 +86,10 @@ public class NEATSpeciator extends Speciator<NEATGenome> implements EvolutionObs
         int multiplier = 0;
         if (speciesSizes.length > numTargetSpecies)
             multiplier = 1;
-        else if (numTargetSpecies > speciesSizes.length)
+        else if (speciesSizes.length < numTargetSpecies)
             multiplier = -1;
 
-        aspects[startIndex] = aspects[startIndex] + ThreadLocalRandom.current().nextDouble() * aspectModificationArray[startIndex * 2] * multiplier;
+        aspects[startIndex] = aspects[startIndex] * (1 + (aspectModificationArray[startIndex * 2] * multiplier * ThreadLocalRandom.current().nextDouble()));
         AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 1, r, 0, Double.POSITIVE_INFINITY);
         AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 2, r, 0, Double.POSITIVE_INFINITY);
     }
