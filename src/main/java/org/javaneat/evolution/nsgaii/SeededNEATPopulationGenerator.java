@@ -39,6 +39,6 @@ public class SeededNEATPopulationGenerator extends NEATPopulationGenerator {
             //population.add(new Individual<>(new NEATGenome(next.getIndividual()), next.aspects,next.id));
         }
 
-        return new Population<>(population, seed.getCurrentID());
+        return new Population<>(population, seed.getCurrentIndividualID(), seed.getCurrentSpeciesID());
     }
 }
