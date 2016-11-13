@@ -1,7 +1,5 @@
 package org.javaneat.evolution.nsgaii;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.javaneat.evolution.NEATInnovationMap;
 import org.javaneat.genome.NEATGenome;
 import org.jnsgaii.population.Population;
@@ -31,7 +29,7 @@ public class SeededNEATPopulationGenerator extends NEATPopulationGenerator {
     }
 
     @Override
-    public Pair<List<Individual<NEATGenome>>, Long> generatePopulation(int num, Properties properties) {
+    public Population<NEATGenome> generatePopulation(int num, Properties properties) {
         List<Individual<NEATGenome>> population = new ArrayList<>(num);
 
         Iterator<? extends Individual<NEATGenome>> iterator = seed.getPopulation().iterator();
@@ -41,6 +39,6 @@ public class SeededNEATPopulationGenerator extends NEATPopulationGenerator {
             //population.add(new Individual<>(new NEATGenome(next.getIndividual()), next.aspects,next.id));
         }
 
-        return new ImmutablePair<>(population, seed.getCurrentID());
+        return new Population<>(population, seed.getCurrentID());
     }
 }
