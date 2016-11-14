@@ -1,15 +1,12 @@
 package org.javaneat.evolution.nsgaii;
 
-import edu.uci.ics.jung.algorithms.cluster.BicomponentClusterer;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import org.apache.commons.math3.util.FastMath;
 import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.ConnectionGene;
 import org.javaneat.genome.NEATGenome;
 import org.jnsgaii.multiobjective.population.FrontedIndividual;
 import org.jnsgaii.observation.EvolutionObserver;
-import org.jnsgaii.operators.Speciator;
+import org.jnsgaii.operators.speciation.Speciator;
 import org.jnsgaii.population.PopulationData;
 import org.jnsgaii.population.individual.Individual;
 import org.jnsgaii.properties.AspectUser;
@@ -18,9 +15,17 @@ import org.jnsgaii.properties.Properties;
 import org.jnsgaii.util.Utils;
 import org.jnsgaii.visualization.TabbedVisualizationWindow;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
+
+import edu.uci.ics.jung.algorithms.cluster.BicomponentClusterer;
+import edu.uci.ics.jung.graph.UndirectedGraph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 /**
  * Created by Mitchell on 3/22/2016.
