@@ -3,14 +3,18 @@ package org.javaneat.evolution.nsgaii;
 import org.javaneat.evolution.NEATInnovationMap;
 import org.javaneat.evolution.nsgaii.keys.NEATIntKey;
 import org.javaneat.genome.NEATGenome;
+import org.jnsgaii.operators.speciation.Species;
 import org.jnsgaii.population.Population;
 import org.jnsgaii.population.individual.Individual;
 import org.jnsgaii.properties.Key;
 import org.jnsgaii.properties.Properties;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * Created by Mitchell on 3/13/2016.
@@ -34,8 +38,9 @@ public class RandomNEATPopulationGenerator extends NEATPopulationGenerator {
             NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), numInputs, numOutputs, neatInnovationMap);
             population.add(new Individual<>(genome, defaultAspects, currentIndividualID++));
         }
+        Set<Long> usedIDs = population.stream().map(i -> i.id).collect(Collectors.toSet());
 
-        return new Population<>(population, currentIndividualID, currentSpeciesID);
+        return new Population<>(population, Collections.singleton(new Species(usedIDs, currentSpeciesID++)), currentSpeciesID, currentIndividualID);
     }
 
     @Override
