@@ -28,7 +28,7 @@ import edu.uci.ics.jung.graph.UndirectedGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 /**
- * Created by Mitchell on 3/22/2016.
+ * Created by Mitchell Skaggs on 3/22/2016.
  */
 public class NEATSpeciator extends Speciator<NEATGenome> implements EvolutionObserver<NEATGenome> {
 

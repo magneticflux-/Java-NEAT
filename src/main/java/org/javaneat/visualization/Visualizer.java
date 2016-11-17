@@ -22,7 +22,7 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 
 /**
- * Created by Mitchell on 4/14/2016.
+ * Created by Mitchell Skaggs on 4/14/2016.
  */
 public final class Visualizer {
 

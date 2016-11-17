@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Mitchell on 6/20/2016.
+ * Created by Mitchell Skaggs on 6/20/2016.
  */
 public class NEATInnovationMap implements Serializable {
     private final Map<InnovationKey, NEATInnovation> innovations;

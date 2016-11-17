@@ -3,7 +3,7 @@ package org.javaneat.genome;
 import java.io.Serializable;
 
 /**
- * Created by Mitchell on 1/18/2016.
+ * Created by Mitchell Skaggs on 1/18/2016.
  */
 public class InnovationKey implements Serializable {
     private final InnovationType type;

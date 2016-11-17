@@ -20,7 +20,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Created by Mitchell on 3/24/2016.
+ * Created by Mitchell Skaggs on 3/24/2016.
  */
 public class NEATRecombiner extends Recombiner<NEATGenome> {
     private final NEATInnovationMap neatInnovationMap;

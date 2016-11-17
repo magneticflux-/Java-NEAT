@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
- * Created by Mitchell on 3/23/2016.
+ * Created by Mitchell Skaggs on 3/23/2016.
  */
 public class NEATWeightMutator extends Mutator<NEATGenome> {
 

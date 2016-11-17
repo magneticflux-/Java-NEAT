@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Created by Mitchell on 8/20/2016.
+ * Created by Mitchell Skaggs on 8/20/2016.
  */
 public class SeededNEATPopulationGenerator extends NEATPopulationGenerator {
 

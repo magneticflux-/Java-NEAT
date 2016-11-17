@@ -7,7 +7,7 @@ import org.jnsgaii.population.PopulationGenerator;
 import org.jnsgaii.properties.Properties;
 
 /**
- * Created by Mitchell on 8/20/2016.
+ * Created by Mitchell Skaggs on 8/20/2016.
  */
 public abstract class NEATPopulationGenerator implements PopulationGenerator<NEATGenome> {
     protected final NEATInnovationMap neatInnovationMap;

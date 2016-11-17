@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 /**
- * Created by Mitchell on 3/24/2016.
+ * Created by Mitchell Skaggs on 3/24/2016.
  */
 public class NEATLinkRemovalMutator extends Mutator<NEATGenome> {
     @Override
