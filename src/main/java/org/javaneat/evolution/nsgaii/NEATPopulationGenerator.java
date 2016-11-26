@@ -25,5 +25,5 @@ public abstract class NEATPopulationGenerator implements PopulationGenerator<NEA
     }
 
     @Override
-    public abstract Population<NEATGenome> generatePopulation(int num, Properties properties);
+    public abstract Population<NEATGenome> generatePopulation(int populationSize, Properties properties);
 }

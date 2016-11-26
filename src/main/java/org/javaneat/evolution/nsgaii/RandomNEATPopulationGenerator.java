@@ -26,15 +26,15 @@ public class RandomNEATPopulationGenerator extends NEATPopulationGenerator {
     }
 
     @Override
-    public Population<NEATGenome> generatePopulation(int num, Properties properties) {
-        List<Individual<NEATGenome>> population = new ArrayList<>(num);
+    public Population<NEATGenome> generatePopulation(int populationSize, Properties properties) {
+        List<Individual<NEATGenome>> population = new ArrayList<>(populationSize);
         final double[] defaultAspects = (double[]) properties.getValue(Key.DoubleKey.DefaultDoubleKey.INITIAL_ASPECT_ARRAY);
         final int numInputs = properties.getInt(NEATIntKey.INPUT_COUNT);
         final int numOutputs = properties.getInt(NEATIntKey.OUTPUT_COUNT);
         long currentIndividualID = 0;
         long currentSpeciesID = 0;
 
-        for (int i = 0; i < num; i++) {
+        for (int i = 0; i < populationSize; i++) {
             NEATGenome genome = new NEATGenome(ThreadLocalRandom.current(), numInputs, numOutputs, neatInnovationMap);
             population.add(new Individual<>(genome, defaultAspects, currentIndividualID++));
         }

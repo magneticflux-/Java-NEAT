@@ -32,11 +32,11 @@ public class SeededNEATPopulationGenerator extends NEATPopulationGenerator {
     }
 
     @Override
-    public Population<NEATGenome> generatePopulation(int num, Properties properties) {
-        List<Individual<NEATGenome>> population = new ArrayList<>(num);
+    public Population<NEATGenome> generatePopulation(int populationSize, Properties properties) {
+        List<Individual<NEATGenome>> population = new ArrayList<>(populationSize);
 
         Iterator<? extends Individual<NEATGenome>> iterator = seed.getPopulation().iterator();
-        for (int i = 0; i < num && iterator.hasNext(); i++) {
+        for (int i = 0; i < populationSize && iterator.hasNext(); i++) {
             Individual<NEATGenome> next = iterator.next();
             population.add(next);
             //population.add(new Individual<>(new NEATGenome(next.getIndividual()), next.aspects,next.id));
