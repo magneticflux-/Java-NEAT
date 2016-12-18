@@ -39,8 +39,8 @@ public class RandomNEATPopulationGenerator extends NEATPopulationGenerator {
             population.add(new Individual<>(genome, defaultAspects, currentIndividualID++));
         }
         Set<Long> usedIDs = population.stream().map(i -> i.id).collect(Collectors.toSet());
-
-        return new Population<>(population, Collections.singleton(new Species(usedIDs, currentSpeciesID++)), currentSpeciesID, currentIndividualID);
+        Species onlySpecies = new Species(usedIDs, currentSpeciesID++);
+        return new Population<>(population, Collections.singleton(onlySpecies), currentSpeciesID, currentIndividualID);
     }
 
     @Override

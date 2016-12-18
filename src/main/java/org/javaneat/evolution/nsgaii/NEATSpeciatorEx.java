@@ -28,6 +28,13 @@ public class NEATSpeciatorEx extends DistanceSpeciatorEx<NEATGenome> {
     private int numTargetSpecies;
 
     @Override
+    public Set<Species> getSpecies(Population<NEATGenome> oldPopulation, List<Individual<NEATGenome>> newPopulation, long currentSpeciesID) {
+        Set<Species> species = super.getSpecies(oldPopulation, newPopulation, currentSpeciesID);
+        speciesSizes = species.stream().mapToInt(s -> s.getIndividualIDs().size()).toArray();
+        return species;
+    }
+
+    @Override
     protected double getDistance(Individual<NEATGenome> first, Individual<NEATGenome> second) {
         return getGenomeDistance(startIndex, first, second);
     }
@@ -82,19 +89,12 @@ public class NEATSpeciatorEx extends DistanceSpeciatorEx<NEATGenome> {
         double disjointGeneCoefficient = (individual.aspects[startIndex + 1] + individual2.aspects[startIndex + 1]) / 2;
         double excessGeneCoefficient = (individual.aspects[startIndex + 2] + individual2.aspects[startIndex + 2]) / 2;
 
-        return (disjointGeneCoefficient * numDisjoint) + (excessGeneCoefficient * numExcess) + (numMatched == 0 ? 0 : (weightDifference / numMatched));
+        return ((disjointGeneCoefficient * numDisjoint) + (excessGeneCoefficient * numExcess) + (numMatched == 0 ? 0 : (weightDifference / numMatched))) / (genome1Genes.size() + genome2Genes.size());
     }
 
     @Override
     protected double getMaxDistance(Individual<NEATGenome> first, Individual<NEATGenome> second) {
         return (first.aspects[startIndex] + second.aspects[startIndex]) / 2d;
-    }
-
-    @Override
-    public Set<Species> getSpecies(Population<NEATGenome> oldPopulation, List<Individual<NEATGenome>> newPopulation, long currentSpeciesID) {
-        Set<Species> species = super.getSpecies(oldPopulation, newPopulation, currentSpeciesID);
-        speciesSizes = species.stream().mapToInt(s -> s.getIndividualIDs().size()).toArray();
-        return species;
     }
 
     @Override
@@ -107,13 +107,18 @@ public class NEATSpeciatorEx extends DistanceSpeciatorEx<NEATGenome> {
     public void modifyAspects(double[] aspects, Random r) {
         //AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex, r, 0, Double.POSITIVE_INFINITY);
 
-        int multiplier = 0;
-        if (speciesSizes.length > numTargetSpecies)
-            multiplier = 1;
-        else if (speciesSizes.length < numTargetSpecies)
-            multiplier = -1;
 
-        aspects[startIndex] = aspects[startIndex] * (1 + (aspectModificationArray[startIndex * 2] * multiplier * r.nextDouble()));
+        int exponent = 0;
+        if (speciesSizes.length > numTargetSpecies)
+            exponent = -1;
+        else if (speciesSizes.length < numTargetSpecies)
+            exponent = 1;
+        /*
+        aspects[startIndex] = aspects[startIndex] * FastMath.pow(aspectModificationArray[startIndex * 2] + (r.nextDouble() / 50), exponent);
+        */
+
+        aspects[startIndex] = aspects[startIndex] + (-exponent * aspectModificationArray[startIndex * 2] * r.nextDouble());
+
         AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 1, r, 0, Double.POSITIVE_INFINITY);
         AspectUser.mutateAspect(aspectModificationArray, aspects, startIndex + 2, r, 0, Double.POSITIVE_INFINITY);
     }
