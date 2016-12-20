@@ -3,8 +3,8 @@ package org.javaneat.genome;
 import org.javaneat.evolution.NEATInnovationMap;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -25,8 +25,8 @@ public class NEATGenome implements Serializable
     }
 
     public NEATGenome(final List<ConnectionGene> connections, final List<NeuronGene> neurons, int numInputs, int numOutputs, NEATInnovationMap neatInnovationMap) {
-        this.connectionGeneList = new ArrayList<>(connections);
-        this.neuronGeneList = new ArrayList<>(neurons);
+        this.connectionGeneList = new LinkedList<>(connections);
+        this.neuronGeneList = new LinkedList<>(neurons);
         this.numInputs = numInputs;
         this.numOutputs = numOutputs;
     }
@@ -44,8 +44,8 @@ public class NEATGenome implements Serializable
         this.numInputs = numInputs;
         this.numOutputs = numOutputs;
 
-        this.connectionGeneList = new ArrayList<>(1);
-        this.neuronGeneList = new ArrayList<>(numInputs + numOutputs + 1);
+        this.connectionGeneList = new LinkedList<>(); //new ArrayList<>(1);
+        this.neuronGeneList = new LinkedList<>(); //new ArrayList<>(numInputs + numOutputs + 1);
 
         this.addInitialNodes(neatInnovationMap);
         this.addRandomFirstLink(rng, neatInnovationMap);
@@ -81,10 +81,6 @@ public class NEATGenome implements Serializable
         return null;
     }
 
-    public int getNumInputs() {
-        return numInputs;
-    }
-
     public int getNumOutputs() {
         return numOutputs;
     }
@@ -95,6 +91,10 @@ public class NEATGenome implements Serializable
 
     public int getOutputOffset() {
         return 1 + this.getNumInputs();
+    }
+
+    public int getNumInputs() {
+        return numInputs;
     }
 
     public NeuronType getNeuronType(long neuronID) {
