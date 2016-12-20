@@ -77,7 +77,7 @@ public class NEATSpeciatorEx extends DistanceSpeciatorEx<NEATGenome> {
                     genome1Iterator.previous();
                 } else if (currentGenome1Gene.getInnovationID() < currentGenome2Gene.getInnovationID()) {
                     numDisjoint++;
-                    genome1Iterator.previous();
+                    genome2Iterator.previous();
                 }
 
             } else if (currentGenome1Gene != null) { //currentGenome1Gene != null && currentGenome2Gene == null
